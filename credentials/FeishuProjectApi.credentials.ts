@@ -43,12 +43,30 @@ export class FeishuProjectApi implements ICredentialType {
 			description: '飞书项目插件的密钥',
 		},
 		{
+			displayName: '插件访问凭证类型',
+			name: 'tokenType',
+			type: 'options',
+			options: [
+				{
+					name: 'plugin_access_token',
+					value: 0,
+				},
+				{
+					name: 'virtual_plugin_token',
+					value: 1,
+				},
+			],
+			default: 0,
+			required: false,
+			description: '插件访问凭证类型，默认为 plugin_access_token，virtual_plugin_token是方便开发阶段调试使用',
+		},
+		{
 			displayName: '用户ID',
 			name: 'userId',
 			type: 'string',
 			default: '',
 			required: true,
-			description: '用户的唯一ID，用于X-USER-KEY头部',
+			description: '用户的唯一ID，当选择使用插件身份凭证时，需要选择指定接口调用的用户 user_key，user_key 可双击用户头像获取。',
 		},
 		{
 			displayName: '插件Token',
@@ -66,7 +84,6 @@ export class FeishuProjectApi implements ICredentialType {
 		type: 'generic',
 		properties: {
 			headers: {
-				'User-Agent': 'N8N-FeishuProject/1.0.0',
 				'X-USER-KEY': '={{$credentials.userId}}',
 				'X-PLUGIN-TOKEN': '={{$credentials.pluginToken}}',
 			},
@@ -78,13 +95,10 @@ export class FeishuProjectApi implements ICredentialType {
 			method: 'POST',
 			baseURL: `https://${credentials.baseUrl}`,
 			url: '/open_api/authen/plugin_token',
-			headers: {
-				'Content-Type': 'application/json',
-				'User-Agent': 'N8N-FeishuProject/1.0.0',
-			},
 			body: {
 				plugin_id: credentials.pluginId,
 				plugin_secret: credentials.pluginSecret,
+				type: credentials.tokenType !== undefined ? credentials.tokenType : 0,
 			},
 			json: true,
 		})) as any;
@@ -97,18 +111,15 @@ export class FeishuProjectApi implements ICredentialType {
 
 
 	// 测试连接配置 - 通过获取plugin_token来验证credentials是否有效
-	test: ICredentialTestRequest = {
+		test: ICredentialTestRequest = {
 		request: {
 			baseURL: '={{"https://" + $credentials.baseUrl}}',
 			url: '/open_api/authen/plugin_token',
 			method: 'POST' as IHttpRequestMethods,
-			headers: {
-				'Content-Type': 'application/json',
-				'User-Agent': 'N8N-FeishuProject/1.0.0',
-			},
 			body: {
 				plugin_id: '={{$credentials.pluginId}}',
 				plugin_secret: '={{$credentials.pluginSecret}}',
+				type: '={{$credentials.tokenType !== undefined ? $credentials.tokenType : 0}}',
 			},
 			json: true,
 		},

@@ -28,13 +28,13 @@ const ViewFixedCreateOperate: ResourceOperations = {
 			name: 'body',
 			type: 'json',
 			default: JSON.stringify({
-				"work_item_id_list": [0],
+				"work_item_id_list": [],
 				"name": "",
 				"cooperation_mode": 0,
-				"cooperation_user_keys": [""],
-				"cooperation_team_ids": [0]
+				"cooperation_user_keys": [],
+				"cooperation_team_ids": []
 			}, null, 2),
-			description: '完整的请求体参数，JSON格式',
+			description: '完整的请求体参数，JSON格式 , 详见：https://project.feishu.cn/b/helpcenter/2.0.0/1p8d7djs/5pynwolg',
 		},
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {

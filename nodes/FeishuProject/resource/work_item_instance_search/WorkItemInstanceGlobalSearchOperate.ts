@@ -14,16 +14,12 @@ const WorkItemInstanceGlobalSearchOperate: ResourceOperations = {
 			default: JSON.stringify({
 				"query_type": "",
 				"query": "",
-				"query_sub_type": [
-					""
-				],
-				"page_size": 10,
+				"query_sub_type": [],
+				"page_size": 50,
 				"page_num": 1,
-				"simple_names": [
-					""
-				]
+				"simple_names": []
 			}, null, 2),
-			description: '完整的请求体参数，JSON格式',
+			description: '完整的请求体参数，JSON格式 , 详见：https://project.feishu.cn/b/helpcenter/1p8d7djs/568y2esm',
 		},
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {

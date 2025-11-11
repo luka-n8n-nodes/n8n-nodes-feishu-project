@@ -44,48 +44,48 @@ const WorkflowNodeUpdateOperate: ResourceOperations = {
 			name: 'body',
 			type: 'json',
 			default: JSON.stringify({
-				"node_owners": [""],
+				"node_owners": [],
 				"node_schedule": {
-					"points": 0,
-					"estimate_start_date": 1724169600000,
-					"estimate_end_date": 1724428799999,
-					"owners": [""],
-					"actual_work_time": 0,
-					"is_auto": true
+					// "points": 0,
+					// "estimate_start_date": 1724169600000,
+					// "estimate_end_date": 1724428799999,
+					// "owners": [""],
+					// "actual_work_time": 0,
+					// "is_auto": true
 				},
 				"schedules": [
-					{
-						"points": 0,
-						"estimate_start_date": 1724169600000,
-						"estimate_end_date": 1724428799999,
-						"owners": [""],
-						"actual_work_time": 0,
-						"is_auto": true
-					}
+					// {
+					// 	"points": 0,
+					// 	"estimate_start_date": 1724169600000,
+					// 	"estimate_end_date": 1724428799999,
+					// 	"owners": [""],
+					// 	"actual_work_time": 0,
+					// 	"is_auto": true
+					// }
 				],
 				"fields": [
-					{
-						"field_key": "",
-						"field_value": "",
-						"target_state": {
-							"state_key": "",
-							"transition_id": 0
-						},
-						"field_type_key": "",
-						"field_alias": "",
-						"help_description": ""
-					}
+					// {
+					// 	"field_key": "",
+					// 	"field_value": "",
+					// 	"target_state": {
+					// 		"state_key": "",
+					// 		"transition_id": 0
+					// 	},
+					// 	"field_type_key": "",
+					// 	"field_alias": "",
+					// 	"help_description": ""
+					// }
 				],
 				"role_assignee": [
-					{
-						"role": "",
-						"name": "",
-						"owners": [""],
-						"exist": true
-					}
+					// {
+					// 	"role": "",
+					// 	"name": "",
+					// 	"owners": [""],
+					// 	"exist": true
+					// }
 				]
 			}, null, 2),
-			description: '完整的请求体参数，JSON格式',
+			description: '完整的请求体参数，JSON格式 , 详见：https://project.feishu.cn/b/helpcenter/2.0.0/1p8d7djs/529u7i3c',
 		},
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {

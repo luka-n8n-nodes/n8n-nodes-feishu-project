@@ -36,11 +36,11 @@ const ViewFixedUpdateOperate: ResourceOperations = {
 			name: 'body',
 			type: 'json',
 			default: JSON.stringify({
-				"add_work_item_ids": [0],
-				"remove_work_item_ids": [0],
+				"add_work_item_ids": [],
+				"remove_work_item_ids": [],
 				"cooperation_mode": 0,
-				"cooperation_user_keys": [""],
-				"cooperation_team_ids": [0]
+				"cooperation_user_keys": [],
+				"cooperation_team_ids": []
 			}, null, 2),
 			description: '完整的请求体参数，JSON格式',
 		},

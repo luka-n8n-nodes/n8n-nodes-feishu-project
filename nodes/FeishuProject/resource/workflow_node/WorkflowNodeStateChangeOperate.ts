@@ -36,30 +36,30 @@ const WorkflowNodeStateChangeOperate: ResourceOperations = {
 			name: 'body',
 			type: 'json',
 			default: JSON.stringify({
-				"transition_id": 0,
+				// "transition_id": 0,
 				"fields": [
-					{
-						"field_key": "",
-						"field_value": "",
-						"target_state": {
-							"state_key": "",
-							"transition_id": 0
-						},
-						"field_type_key": "",
-						"field_alias": "",
-						"help_description": ""
-					}
+					// {
+					// 	"field_key": "",
+					// 	"field_value": "",
+					// 	"target_state": {
+					// 		"state_key": "",
+					// 		"transition_id": 0
+					// 	},
+					// 	"field_type_key": "",
+					// 	"field_alias": "",
+					// 	"help_description": ""
+					// }
 				],
 				"role_owners": [
-					{
-						"role": "",
-						"name": "",
-						"owners": [""],
-						"exist": true
-					}
+					// {
+					// 	"role": "",
+					// 	"name": "",
+					// 	"owners": [""],
+					// 	"exist": true
+					// }
 				]
 			}, null, 2),
-			description: '完整的请求体参数，JSON格式',
+			description: '完整的请求体参数，JSON格式 , 详见：https://project.feishu.cn/b/helpcenter/2.0.0/1p8d7djs/5fivh4k0',
 		},
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {

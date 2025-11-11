@@ -21,43 +21,20 @@ const WorkItemInstanceSearchSingleSpaceOperate: ResourceOperations = {
 			type: 'json',
 			default: JSON.stringify({
 				"work_item_name": "",
-				"user_keys": [""],
-				"work_item_ids": [0],
-				"work_item_type_keys": [""],
-				"created_at": {
-					"start": 0,
-					"end": 0
-				},
-				"updated_at": {
-					"start": 0,
-					"end": 0
-				},
-				"sub_stages": [""],
-				"businesses": [""],
-				"priorities": [""],
-				"tags": [""],
+				"user_keys": [],
+				"work_item_ids": [],
+				"work_item_type_keys": [],
+				"sub_stages": [],
+				"businesses": [],
+				"priorities": [],
+				"tags": [],
 				"page_num": 1,
-				"page_size": 10,
-				"work_item_status": [
-					{
-						"state_key": "",
-						"is_archived_state": true,
-						"is_init_state": true,
-						"updated_at": 1654063482000,
-						"updated_by": "",
-						"history": [{}]
-					}
-				],
-				"expand": {
-					"need_workflow": true,
-					"relation_fields_detail": true,
-					"need_multi_text": true,
-					"need_user_detail": true,
-					"need_sub_task_parent": true
-				},
+				"page_size": 50,
+				"work_item_status": [],
+				"expand": {},
 				"search_id": ""
 			}, null, 2),
-			description: '完整的请求体参数，JSON格式',
+			description: '完整的请求体参数，JSON格式, 详见：https://project.feishu.cn/b/helpcenter/1p8d7djs/568y2esm',
 		},
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {

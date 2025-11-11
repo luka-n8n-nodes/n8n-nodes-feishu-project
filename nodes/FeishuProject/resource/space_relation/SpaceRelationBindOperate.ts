@@ -38,15 +38,15 @@ const SpaceRelationBindOperate: ResourceOperations = {
 			default: JSON.stringify({
 				"relation_rule_id": "",
 				"instances": [
-					{
-						"project_key": "",
-						"work_item_type_key": "",
-						"work_item_id": 0,
-						"chat_group_merge": 0
-					}
+					// {
+					// 	"project_key": "",
+					// 	"work_item_type_key": "",
+					// 	"work_item_id": 0,
+					// 	"chat_group_merge": 0
+					// }
 				]
 			}, null, 2),
-			description: '完整的请求体参数，JSON格式',
+			description: '完整的请求体参数，JSON格式 , 详见：https://project.feishu.cn/b/helpcenter/1p8d7djs/568y2esm',
 		},
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {

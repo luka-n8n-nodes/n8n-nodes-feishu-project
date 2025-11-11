@@ -29,32 +29,22 @@ const WorkItemInstanceSearchComplexOperate: ResourceOperations = {
 			type: 'json',
 			default: JSON.stringify({
 				"search_group": {
-					"search_params": [
-						{
-							"param_key": "",
-							"value": "",
-							"operator": ""
-						}
-					],
+					"search_params": [],
 					"conjunction": "",
-					"search_groups": [
-						{}
-					]
+					"search_groups": []
 				},
 				"page_num": 1,
-				"page_size": 10,
-				"fields": [
-					""
-				],
+				"page_size": 50,
+				"fields": [],
 				"expand": {
-					"need_workflow": true,
-					"relation_fields_detail": true,
-					"need_multi_text": true,
-					"need_user_detail": true,
-					"need_sub_task_parent": true
+					// "need_workflow": true,
+					// "relation_fields_detail": true,
+					// "need_multi_text": true,
+					// "need_user_detail": true,
+					// "need_sub_task_parent": true
 				}
 			}, null, 2),
-			description: '完整的请求体参数，JSON格式',
+			description: '完整的请求体参数，JSON格式 , 详见：https://project.feishu.cn/b/helpcenter/1p8d7djs/568y2esm',
 		},
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {

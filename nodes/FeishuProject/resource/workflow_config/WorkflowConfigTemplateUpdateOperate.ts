@@ -8,145 +8,56 @@ const WorkflowConfigTemplateUpdateOperate: ResourceOperations = {
 	value: 'workflow_config:template_update',
 	options: [
 		{
-			displayName: '请求体参数',
-			name: 'body',
+			displayName: '空间ID',
+			name: 'project_key',
+			type: 'string',
+			default: '',
+			required: true,
+			description: '空间 ID (project_key) 或空间域名 (simple_name)。project_key 在飞书项目空间双击空间名称获取；simple_name 一般在飞书项目空间 URL 中获取，例如空间 URL为"https://project.feishu.cn/doc/overview"，则 simple_name 为"doc"',
+		},
+		{
+			displayName: '模板ID',
+			name: 'template_id',
+			type: 'string',
+			default: '',
+			required: true,
+			description: '模板 ID。如果不提供，将自动选择指定工作项类型的第一个流程模板。可通过以下方式获取：1. 通过"获取创建工作项元数据"接口的 template 字段的 options 中，选择对应的 value；2. 通过"工作项下流程模板列表"接口返回的 template_id；3. 通过"获取字段信息"接口的 template 字段的 options 中，选择对应的 value',
+		},
+		{
+			displayName: '节点流程配置',
+			name: 'workflow_confs',
 			type: 'json',
-			default: JSON.stringify({
-				"project_key": "",
-				"template_id": 0,
-				"workflow_confs": [
-					{
-						"state_key": "",
-						"name": "",
-						"tags": [""],
-						"owner_usage_mode": 0,
-						"owner_roles": [""],
-						"owners": [""],
-						"need_schedule": true,
-						"different_schedule": true,
-						"visibility_usage_mode": 0,
-						"deletable": true,
-						"deletable_operation_role": [""],
-						"pass_mode": 0,
-						"is_limit_node": true,
-						"done_operation_role": [""],
-						"done_schedule": true,
-						"done_allocate_owner": true,
-						"action": 0,
-						"pre_node_state_key": [""],
-						"completion_tips": "",
-						"task_confs": [
-							{
-								"action": 0,
-								"name": "",
-								"id": "",
-								"deliverable_field_id": "",
-								"pass_mode": 0,
-								"node_pass_required_mode": 0
-							}
-						],
-						"belong_status": "",
-						"done_actual_point": true,
-						"is_milestone": true,
-						"done_finish_time": true,
-						"fields": [
-							{
-								"is_required": 0,
-								"is_visibility": 0,
-								"role_assign": [
-									{
-										"role": "",
-										"name": "",
-										"default_appear": 0,
-										"deletable": 0,
-										"member_assign": 0,
-										"members": [""]
-									}
-								],
-								"field_name": "",
-								"field_key": "",
-								"field_alias": "",
-								"field_type_key": "",
-								"default_value": {
-									"default_appear": 0,
-									"value": ""
-								},
-								"options": [
-									{
-										"label": "",
-										"value": "",
-										"is_disabled": 0,
-										"is_visibility": 0,
-										"children": [{}]
-									}
-								],
-								"compound_fields": [{}],
-								"is_validity": 0,
-								"label": "",
-								"work_item_relation": {
-									"id": "",
-									"name": "",
-									"disabled": true,
-									"work_item_type_key": "",
-									"work_item_type_name": "",
-									"relation_details": [
-										{
-											"work_item_type_key": "",
-											"work_item_type_name": "",
-											"project_key": "",
-											"project_name": ""
-										}
-									],
-									"relation_type": 0
-								},
-								"field_uuid": "",
-								"free_add": true,
-								"field_tips": "",
-								"sub_type_level_mode": "",
-								"sub_type_level_class": 0
-							}
-						],
-						"sub_work_items": [
-							{
-								"name": "",
-								"relation_uuid": "",
-								"relation_name": "",
-								"work_item_type_key": "",
-								"work_item_type_name": ""
-							}
-						],
-						"sub_tasks": [
-							{
-								"name": "",
-								"owner_usage_mode": 0,
-								"owner_roles": [""],
-								"owners": [""]
-							}
-						]
-					}
-				],
-				"state_flow_confs": [
-					{
-						"state_key": "",
-						"name": "",
-						"state_type": 0,
-						"authorized_roles": [""],
-						"confirm_form_list": [
-							{
-								"action": 0,
-								"state_key": ""
-							}
-						],
-						"action": 0
-					}
-				]
-			}, null, 2),
-			description: '完整的请求体参数，JSON格式',
+			default: JSON.stringify([], null, 2),
+			description: '节点流程配置，遵循 WorkflowConf 结构规范，JSON格式 , 详见：https://project.feishu.cn/b/helpcenter/2.0.0/1p8d7djs/5hi2qv80',
+		},
+		{
+			displayName: '状态流程配置',
+			name: 'state_flow_confs',
+			type: 'json',
+			default: JSON.stringify([], null, 2),
+			description: '状态流程配置，遵循 StateFlowConf 结构规范，JSON格式 , 详见：https://project.feishu.cn/b/helpcenter/2.0.0/1p8d7djs/5hi2qv80',
 		},
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {
-		const bodyParam = this.getNodeParameter('body', index) as string;
-		const body: IDataObject = NodeUtils.parseJsonParameter(bodyParam, '请求体参数');
+		const projectKey = this.getNodeParameter('project_key', index) as string;
+		const templateId = this.getNodeParameter('template_id', index) as string;
+		const workflowConfsParam = this.getNodeParameter('workflow_confs', index) as string;
+		const stateFlowConfsParam = this.getNodeParameter('state_flow_confs', index) as string;
+
+		const body: IDataObject = {
+			project_key: projectKey,
+			template_id: Number(templateId),
+		};
+
+		// 处理 workflow_confs
+		if (workflowConfsParam && workflowConfsParam.trim()) {
+			body.workflow_confs = NodeUtils.parseJsonParameter(workflowConfsParam, '节点流程配置');
+		}
+
+		// 处理 state_flow_confs
+		if (stateFlowConfsParam && stateFlowConfsParam.trim()) {
+			body.state_flow_confs = NodeUtils.parseJsonParameter(stateFlowConfsParam, '状态流程配置');
+		}
 
 		return RequestUtils.request.call(this, {
 			method: 'PUT',

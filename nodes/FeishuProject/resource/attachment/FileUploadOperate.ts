@@ -15,12 +15,12 @@ const FileUploadOperate: ResourceOperations = {
 			description: '项目的唯一标识Key',
 		},
 		{
-			displayName: '二进制数据字段名',
+			displayName: 'Input Binary Field',
 			name: 'binaryPropertyName',
 			type: 'string',
 			required: true,
 			default: 'data',
-			description: '包含要上传文件的二进制数据字段名',
+			description: '包含要上传文件的二进制数据字段名，附件-目前最大支持100MB , 详见：https://project.feishu.cn/b/helpcenter/2.0.0/1p8d7djs/g33r3mo4',
 		},
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {

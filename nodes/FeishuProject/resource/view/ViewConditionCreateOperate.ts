@@ -30,7 +30,7 @@ const ViewConditionCreateOperate: ResourceOperations = {
 				"cooperation_team_ids": [0],
 				"name": ""
 			}, null, 2),
-			description: '完整的请求体参数，JSON格式',
+			description: '完整的请求体参数，JSON格式 , 详见：https://project.feishu.cn/b/helpcenter/1p8d7djs/568y2esm',
 		},
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {

@@ -13,48 +13,48 @@ const WorkItemInstanceSearchCrossSpaceOperate: ResourceOperations = {
 			type: 'json',
 			default: JSON.stringify({
 				"search_user": {
-					"user_keys": [""],
+					"user_keys": [],
 					"field_key": "",
 					"role": ""
 				},
 				"work_item_type_key": "",
-				"created_at": {
-					"start": 0,
-					"end": 0
-				},
-				"updated_at": {
-					"start": 0,
-					"end": 0
-				},
+				// "created_at": {
+				// 	"start": 0,
+				// 	"end": 0
+				// },
+				// "updated_at": {
+				// 	"start": 0,
+				// 	"end": 0
+				// },
 				"work_item_status": [
-					{
-						"state_key": "",
-						"is_archived_state": true,
-						"is_init_state": true,
-						"updated_at": 1654063482000,
-						"updated_by": "",
-						"history": [{}]
-					}
+					// {
+					// 	"state_key": "",
+					// 	"is_archived_state": true,
+					// 	"is_init_state": true,
+					// 	"updated_at": 1654063482000,
+					// 	"updated_by": "",
+					// 	"history": [{}]
+					// }
 				],
 				"work_item_name": "",
 				"page_num": 1,
-				"page_size": 10,
-				"tenant_group_id": 0,
-				"work_item_ids": [0],
-				"businesses": [""],
-				"priorities": [""],
-				"tags": [""],
-				"simple_names": [""],
-				"template_ids": [0],
+				"page_size": 50,
+				// "tenant_group_id": 0,
+				"work_item_ids": [],
+				"businesses": [],
+				"priorities": [],
+				"tags": [],
+				"simple_names": [],
+				"template_ids": [],
 				"expand": {
-					"need_workflow": true,
-					"relation_fields_detail": true,
-					"need_multi_text": true,
-					"need_user_detail": true,
-					"need_sub_task_parent": true
+					// "need_workflow": true,
+					// "relation_fields_detail": true,
+					// "need_multi_text": true,
+					// "need_user_detail": true,
+					// "need_sub_task_parent": true
 				}
 			}, null, 2),
-			description: '完整的请求体参数，JSON格式',
+			description: '完整的请求体参数，JSON格式 , 详见：https://project.feishu.cn/b/helpcenter/1p8d7djs/568y2esm',
 		},
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {

@@ -8,7 +8,7 @@ class RequestUtils {
 	) {
 		const credentialName = 'feishuProjectApi';
 		const credentials = await this.getCredentials(credentialName);
-		options.url = `https://${credentials.baseUrl}/${options.url}`;
+		options.baseURL = `https://${credentials.baseUrl}`;
 		return this.helpers.requestWithAuthentication.call(this, credentialName, options)
 	}
 

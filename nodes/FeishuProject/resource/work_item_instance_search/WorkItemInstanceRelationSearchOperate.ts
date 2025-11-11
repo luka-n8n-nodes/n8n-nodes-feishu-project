@@ -39,17 +39,17 @@ const WorkItemInstanceRelationSearchOperate: ResourceOperations = {
 				"relation_work_item_type_key": "",
 				"relation_key": "",
 				"page_num": 1,
-				"page_size": 10,
-				"relation_type": 0,
+				"page_size": 50,
+				// "relation_type": 0,
 				"expand": {
-					"need_workflow": true,
-					"relation_fields_detail": true,
-					"need_multi_text": true,
-					"need_user_detail": true,
-					"need_sub_task_parent": true
+					// "need_workflow": true,
+					// "relation_fields_detail": true,
+					// "need_multi_text": true,
+					// "need_user_detail": true,
+					// "need_sub_task_parent": true
 				}
 			}, null, 2),
-			description: '完整的请求体参数，JSON格式',
+			description: '完整的请求体参数，JSON格式 , 详见：https://project.feishu.cn/b/helpcenter/1p8d7djs/568y2esm',
 		},
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {

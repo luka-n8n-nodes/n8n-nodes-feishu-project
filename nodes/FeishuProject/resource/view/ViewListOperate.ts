@@ -31,7 +31,7 @@ const ViewListOperate: ResourceOperations = {
 				"page_num": 1,
 				"view_name": ""
 			}, null, 2),
-			description: '完整的请求体参数，JSON格式',
+			description: '完整的请求体参数，JSON格式 , 详见：https://project.feishu.cn/b/helpcenter/2.0.0/1p8d7djs/36ugg5au',
 		},
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {

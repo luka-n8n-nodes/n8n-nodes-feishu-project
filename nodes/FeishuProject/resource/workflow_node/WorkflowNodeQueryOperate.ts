@@ -36,8 +36,8 @@ const WorkflowNodeQueryOperate: ResourceOperations = {
 			name: 'body',
 			type: 'json',
 			default: JSON.stringify({
-				"fields": [""],
-				"flow_type": 0,
+				"fields": [],
+				// "flow_type": 0,
 				"expand": {
 					"need_workflow": true,
 					"relation_fields_detail": true,
@@ -46,7 +46,7 @@ const WorkflowNodeQueryOperate: ResourceOperations = {
 					"need_sub_task_parent": true
 				}
 			}, null, 2),
-			description: '完整的请求体参数，JSON格式',
+			description: '完整的请求体参数，JSON格式 , 详见：https://project.feishu.cn/b/helpcenter/2.0.0/1p8d7djs/5hcmcl04',
 		},
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {

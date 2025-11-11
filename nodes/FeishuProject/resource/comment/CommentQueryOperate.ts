@@ -7,12 +7,12 @@ const CommentQueryOperate: ResourceOperations = {
 	value: 'comment:query',
 	options: [
 		{
-			displayName: '项目Key',
+			displayName: '空间ID',
 			name: 'project_key',
 			type: 'string',
 			required: true,
 			default: '',
-			description: '项目的唯一标识Key',
+			description: '空间 ID (project_key) 或空间域名 (simple_name)。project_key 在飞书项目空间双击空间名称获取；simple_name 一般在飞书项目空间 URL 中获取，例如空间 URL为"https://project.feishu.cn/doc/overview"，则 simple_name 为"doc"',
 		},
 		{
 			displayName: '工作项类型Key',
@@ -20,41 +20,54 @@ const CommentQueryOperate: ResourceOperations = {
 			type: 'string',
 			required: true,
 			default: '',
-			description: '工作项类型的唯一标识Key',
+			description: '工作项类型，可通过获取空间下工作项类型接口获取',
 		},
 		{
-			displayName: '工作项ID',
+			displayName: '工作项实例ID',
 			name: 'work_item_id',
 			type: 'string',
 			required: true,
 			default: '',
-			description: '工作项的唯一标识ID',
+			description: '工作项实例 ID，在工作项实例详情中，展开右上角"..." > ID获取',
 		},
 		{
-			displayName: '页码',
+			displayName: '分页页码',
 			name: 'page_num',
-			type: 'string',
-			default: '0',
-			description: '页码，从0开始',
+			type: 'number',
+			default: 1,
+			description: '分页页码，从1开始计数，默认值为1',
 		},
 		{
-			displayName: '页大小',
+			displayName: '每页条数',
 			name: 'page_size',
-			type: 'string',
-			default: '0',
-			description: '每页条数',
+			type: 'number',
+			default: 10,
+			description: '每页返回的数据条数，最大支持200条',
 		},
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {
 		const project_key = this.getNodeParameter('project_key', index) as string;
 		const work_item_type_key = this.getNodeParameter('work_item_type_key', index) as string;
 		const work_item_id = this.getNodeParameter('work_item_id', index) as string;
-		const page_num = this.getNodeParameter('page_num', index) as string;
-		const page_size = this.getNodeParameter('page_size', index) as string;
+		const page_num = this.getNodeParameter('page_num', index, 1) as number;
+		const page_size = this.getNodeParameter('page_size', index, 10) as number;
+
+		const qs: IDataObject = {};
+
+		// 如果提供了 page_num，添加到查询参数
+		if (page_num !== undefined && page_num > 0) {
+			qs.page_num = page_num;
+		}
+
+		// 如果提供了 page_size，添加到查询参数
+		if (page_size !== undefined && page_size > 0) {
+			qs.page_size = page_size;
+		}
 
 		return RequestUtils.request.call(this, {
 			method: 'GET',
-			url: `/open_api/${project_key}/work_item/${work_item_type_key}/${work_item_id}/comments?page_num=${page_num}&page_size=${page_size}`,
+			url: `/open_api/${project_key}/work_item/${work_item_type_key}/${work_item_id}/comments`,
+			qs: qs,
 		});
 	}
 };

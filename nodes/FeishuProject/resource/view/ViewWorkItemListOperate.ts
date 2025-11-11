@@ -25,23 +25,23 @@ const ViewWorkItemListOperate: ResourceOperations = {
 		{
 			displayName: '页码',
 			name: 'page_num',
-			type: 'string',
-			default: '0',
+			type: 'number',
+			default: 1,
 			description: '页码，从0开始',
 		},
 		{
 			displayName: '页大小',
 			name: 'page_size',
-			type: 'string',
-			default: '0',
+			type: 'number',
+			default: 10,
 			description: '每页条数',
 		},
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {
 		const project_key = this.getNodeParameter('project_key', index) as string;
 		const view_id = this.getNodeParameter('view_id', index) as string;
-		const page_num = this.getNodeParameter('page_num', index) as string;
-		const page_size = this.getNodeParameter('page_size', index) as string;
+		const page_num = this.getNodeParameter('page_num', index, 1) as number;
+		const page_size = this.getNodeParameter('page_size', index, 10) as number;
 
 		return RequestUtils.request.call(this, {
 			method: 'GET',
