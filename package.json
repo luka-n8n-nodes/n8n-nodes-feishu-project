@@ -1,6 +1,6 @@
 {
   "name": "@luka-cat-mimi/n8n-nodes-feishu-project",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "飞书项目 N8N 集成插件，支持附件管理等功能",
   "keywords": [
     "n8n",
