@@ -1,6 +1,7 @@
 import { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import RequestUtils from '../../../help/utils/RequestUtils';
 import { ResourceOperations } from '../../../help/type/IResource';
+import { DESCRIPTIONS } from '../../../help/description';
 
 const AttachmentDeleteOperate: ResourceOperations = {
 	name: '删除附件',
@@ -14,14 +15,7 @@ const AttachmentDeleteOperate: ResourceOperations = {
 			default: '',
 			description: '工作项实例 ID，在工作项实例详情中，展开右上角"..." > ID获取',
 		},
-		{
-			displayName: '空间ID',
-			name: 'project_key',
-			type: 'string',
-			required: true,
-			default: '',
-			description: '空间 ID (project_key) 或空间域名 (simple_name)。project_key 在飞书项目空间双击空间名称获取；simple_name 一般在飞书项目空间 URL 中获取，例如空间 URL为"https://project.feishu.cn/doc/overview"，则 simple_name 为"doc"',
-		},
+		DESCRIPTIONS.PROJECT_KEY,
 		{
 			displayName: '附件UUID列表',
 			name: 'uuids',
@@ -50,7 +44,9 @@ const AttachmentDeleteOperate: ResourceOperations = {
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {
 		const work_item_id = this.getNodeParameter('work_item_id', index) as string;
-		const project_key = this.getNodeParameter('project_key', index) as string;
+		const project_key = this.getNodeParameter('project_key', index, '', {
+			extractValue: true,
+		}) as string;
 		const uuids = this.getNodeParameter('uuids', index) as string[] | string;
 		const field_key = this.getNodeParameter('field_key', index) as string;
 		const field_alias = this.getNodeParameter('field_alias', index) as string;

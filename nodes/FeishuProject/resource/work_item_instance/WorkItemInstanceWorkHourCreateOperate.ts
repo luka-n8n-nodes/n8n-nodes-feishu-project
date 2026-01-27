@@ -3,20 +3,14 @@ import RequestUtils from '../../../help/utils/RequestUtils';
 import NodeUtils from '../../../help/utils/NodeUtils';
 import { ResourceOperations } from '../../../help/type/IResource';
 import { commonOptions, ICommonOptionsValue } from '../../../help/utils/sharedOptions';
+import { DESCRIPTIONS } from '../../../help/description';
 
 const WorkItemInstanceWorkHourCreateOperate: ResourceOperations = {
 	name: '创建实际工时',
 	value: 'work_item_instance:work_hour_create',
 	order: 130,
 	options: [
-		{
-			displayName: '项目Key',
-			name: 'project_key',
-			type: 'string',
-			required: true,
-			default: '',
-			description: '项目的唯一标识Key',
-		},
+		DESCRIPTIONS.PROJECT_KEY,
 		{
 			displayName: '工作项类型Key',
 			name: 'work_item_type_key',
@@ -55,7 +49,9 @@ const WorkItemInstanceWorkHourCreateOperate: ResourceOperations = {
 		commonOptions,
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {
-		const project_key = this.getNodeParameter('project_key', index) as string;
+		const project_key = this.getNodeParameter('project_key', index, '', {
+			extractValue: true,
+		}) as string;
 		const work_item_type_key = this.getNodeParameter('work_item_type_key', index) as string;
 		const work_item_id = this.getNodeParameter('work_item_id', index) as string;
 		const bodyParam = this.getNodeParameter('body', index) as string;

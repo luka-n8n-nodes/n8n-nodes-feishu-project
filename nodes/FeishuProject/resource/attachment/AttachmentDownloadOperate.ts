@@ -2,6 +2,7 @@ import { IDataObject, IExecuteFunctions, NodeApiError } from 'n8n-workflow';
 import { ResourceOperations } from '../../../help/type/IResource';
 import { timeoutOption } from '../../../help/utils/sharedOptions';
 import { ERROR_HELP_URL } from '../../../help/type/enums';
+import { DESCRIPTIONS } from '../../../help/description';
 
 /**
  * 二进制内容类型列表
@@ -36,15 +37,7 @@ const AttachmentDownloadOperate: ResourceOperations = {
 	value: 'attachment:download',
 	order: 20,
 	options: [
-		{
-			displayName: '空间ID',
-			name: 'project_key',
-			type: 'string',
-			required: true,
-			default: '',
-			description:
-				'空间 ID (project_key) 或空间域名 (simple_name)。project_key 在飞书项目空间双击空间名称获取；simple_name 一般在飞书项目空间 URL 中获取，例如空间 URL为"https://project.feishu.cn/doc/overview"，则 simple_name 为"doc"',
-		},
+		DESCRIPTIONS.PROJECT_KEY,
 		{
 			displayName: '工作项类型Key',
 			name: 'work_item_type_key',
@@ -105,7 +98,9 @@ const AttachmentDownloadOperate: ResourceOperations = {
 		},
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {
-		const project_key = this.getNodeParameter('project_key', index) as string;
+		const project_key = this.getNodeParameter('project_key', index, '', {
+			extractValue: true,
+		}) as string;
 		const work_item_type_key = this.getNodeParameter('work_item_type_key', index) as string;
 		const work_item_id = this.getNodeParameter('work_item_id', index) as string;
 		const uuid = this.getNodeParameter('uuid', index) as string;

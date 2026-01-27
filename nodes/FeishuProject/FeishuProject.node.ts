@@ -1,7 +1,9 @@
 import {
 	IDataObject,
 	IExecuteFunctions,
+	ILoadOptionsFunctions,
 	INodeExecutionData,
+	INodeListSearchResult,
 	INodeType,
 	INodeTypeDescription,
 	NodeConnectionTypes,
@@ -13,6 +15,13 @@ import { configuredOutputs } from '../help/utils/parameters';
 import { Credentials, OutputType } from '../help/type/enums';
 import { OperationResult, OperationCallFunction } from '../help/type/IResource';
 import { ICommonOptionsValue } from '../help/utils/sharedOptions';
+import {
+	getSpaceList,
+	getSpaceDetails,
+	getWorkItemTypes,
+	ISpaceDetail,
+	IWorkItemType,
+} from './GenericFunctions';
 
 const resourceBuilder = ResourceFactory.build(__dirname);
 
@@ -342,6 +351,66 @@ export class FeishuProject implements INodeType {
 			},
 		],
 		properties: [...resourceBuilder.build()],
+	};
+
+	methods = {
+		listSearch: {
+			/**
+			 * 搜索空间列表
+			 * 数据来源：SpaceListOperate + SpaceDetailOperate 组合
+			 * 1. 调用 /open_api/projects 获取空间ID列表
+			 * 2. 使用空间ID调用 /open_api/projects/detail 获取空间详情
+			 * 3. 返回 name + project_key 格式的列表
+			 */
+			async searchSpaces(this: ILoadOptionsFunctions): Promise<INodeListSearchResult> {
+				// 获取空间ID列表
+				const spaceIds = await getSpaceList.call(this as unknown as IExecuteFunctions);
+
+				if (!spaceIds || spaceIds.length === 0) {
+					return { results: [] };
+				}
+
+				// 获取空间详情
+				const spaceDetails = await getSpaceDetails.call(
+					this as unknown as IExecuteFunctions,
+					spaceIds,
+				);
+
+				// 格式化返回结果
+				return {
+					results: spaceDetails.map((space: ISpaceDetail) => ({
+						name: space.name as string,
+						value: space.project_key as string,
+					})),
+				};
+			},
+
+			/**
+			 * 搜索工作项类型列表
+			 * 依赖：需要先选择空间（project_key）
+			 */
+			async searchWorkItemTypes(this: ILoadOptionsFunctions): Promise<INodeListSearchResult> {
+				const projectKey = this.getNodeParameter('project_key', undefined, {
+					extractValue: true,
+				}) as string;
+
+				if (!projectKey) {
+					throw new NodeOperationError(this.getNode(), '请先选择空间');
+				}
+
+				const workItemTypes = await getWorkItemTypes.call(
+					this as unknown as IExecuteFunctions,
+					projectKey,
+				);
+
+				return {
+					results: workItemTypes.map((type: IWorkItemType) => ({
+						name: type.name as string,
+						value: type.type_key as string,
+					})),
+				};
+			},
+		},
 	};
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {

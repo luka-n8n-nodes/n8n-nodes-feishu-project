@@ -3,6 +3,7 @@ import RequestUtils from '../../../help/utils/RequestUtils';
 import NodeUtils from '../../../help/utils/NodeUtils';
 import { ResourceOperations } from '../../../help/type/IResource';
 import { commonOptions, ICommonOptionsValue } from '../../../help/utils/sharedOptions';
+import { DESCRIPTIONS } from '../../../help/description';
 
 /**
  * 文件上传最大大小限制 (100MB)
@@ -14,15 +15,7 @@ const AttachmentUploadOperate: ResourceOperations = {
 	value: 'attachment:upload',
 	order: 10,
 	options: [
-		{
-			displayName: '空间ID',
-			name: 'project_key',
-			type: 'string',
-			required: true,
-			default: '',
-			description:
-				'空间 ID (project_key) 或空间域名 (simple_name)。project_key 在飞书项目空间双击空间名称获取；simple_name 一般在飞书项目空间 URL 中获取，例如空间 URL为"https://project.feishu.cn/doc/overview"，则 simple_name 为"doc"',
-		},
+		DESCRIPTIONS.PROJECT_KEY,
 		{
 			displayName: '工作项类型Key',
 			name: 'work_item_type_key',
@@ -73,7 +66,9 @@ const AttachmentUploadOperate: ResourceOperations = {
 		commonOptions,
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {
-		const project_key = this.getNodeParameter('project_key', index) as string;
+		const project_key = this.getNodeParameter('project_key', index, '', {
+			extractValue: true,
+		}) as string;
 		const work_item_type_key = this.getNodeParameter('work_item_type_key', index) as string;
 		const work_item_id = this.getNodeParameter('work_item_id', index) as string;
 		const binaryPropertyName = this.getNodeParameter('binaryPropertyName', index) as string;

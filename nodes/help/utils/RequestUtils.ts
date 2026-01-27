@@ -6,6 +6,13 @@ import { IExecuteFunctions, IHttpRequestOptions, JsonObject, NodeApiError } from
 const ERROR_HELP_URL = 'https://project.feishu.cn/b/helpcenter/1p8d7djs/5aueo3jr';
 
 /**
+ * 需要刷新 Token 的错误码列表
+ * - 10022: pluginToken 过期
+ * - 10211: Token Info Is Invalid（token 信息无效）
+ */
+const TOKEN_REFRESH_ERROR_CODES = [10022, 10211];
+
+/**
  * 飞书项目 API 请求工具类
  */
 class RequestUtils {
@@ -103,8 +110,8 @@ class RequestUtils {
 
 					const { err_code, err_msg, err } = errorData;
 
-					// 错误码 10022：pluginToken 过期，自动重试
-					if (err_code === 10022) {
+					// Token 相关错误码：自动刷新 token 并重试
+					if (TOKEN_REFRESH_ERROR_CODES.includes(err_code)) {
 						return RequestUtils.originRequest
 							.call(this, options, true)
 							.then((res) => RequestUtils.processResponse(res));
