@@ -2,10 +2,12 @@ import { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import RequestUtils from '../../../help/utils/RequestUtils';
 import NodeUtils from '../../../help/utils/NodeUtils';
 import { ResourceOperations } from '../../../help/type/IResource';
+import { commonOptions, ICommonOptionsValue } from '../../../help/utils/sharedOptions';
 
 const ViewConditionCreateOperate: ResourceOperations = {
 	name: '创建条件视图',
 	value: 'view:condition_create',
+	order: 5,
 	options: [
 		{
 			displayName: '请求体参数',
@@ -32,15 +34,18 @@ const ViewConditionCreateOperate: ResourceOperations = {
 			}, null, 2),
 			description: '完整的请求体参数，JSON格式 , 详见：https://project.feishu.cn/b/helpcenter/1p8d7djs/568y2esm',
 		},
+		commonOptions,
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {
 		const bodyParam = this.getNodeParameter('body', index) as string;
 		const body: IDataObject = NodeUtils.parseJsonParameter(bodyParam, '请求体参数');
+		const options = this.getNodeParameter('options', index, {}) as ICommonOptionsValue;
 
 		return RequestUtils.request.call(this, {
 			method: 'POST',
 			url: `/open_api/view/v1/create_condition_view`,
 			body: body,
+			timeout: options.timeout,
 		});
 	}
 };

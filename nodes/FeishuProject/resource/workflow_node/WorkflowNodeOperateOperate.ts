@@ -2,10 +2,12 @@ import { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import RequestUtils from '../../../help/utils/RequestUtils';
 import NodeUtils from '../../../help/utils/NodeUtils';
 import { ResourceOperations } from '../../../help/type/IResource';
+import { commonOptions, ICommonOptionsValue } from '../../../help/utils/sharedOptions';
 
 const WorkflowNodeOperateOperate: ResourceOperations = {
 	name: '节点完成/回滚',
 	value: 'workflow_node:operate',
+	order: 5,
 	options: [
 		{
 			displayName: '项目Key',
@@ -54,6 +56,7 @@ const WorkflowNodeOperateOperate: ResourceOperations = {
 			}, null, 2),
 			description: '完整的请求体参数，JSON格式 , 详见：https://project.feishu.cn/b/helpcenter/2.0.0/1p8d7djs/48ft4i1k',
 		},
+		commonOptions,
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {
 		const project_key = this.getNodeParameter('project_key', index) as string;
@@ -62,11 +65,13 @@ const WorkflowNodeOperateOperate: ResourceOperations = {
 		const node_id = this.getNodeParameter('node_id', index) as string;
 		const bodyParam = this.getNodeParameter('body', index) as string;
 		const body: IDataObject = NodeUtils.parseJsonParameter(bodyParam, '请求体参数');
+		const options = this.getNodeParameter('options', index, {}) as ICommonOptionsValue;
 
 		return RequestUtils.request.call(this, {
 			method: 'POST',
 			url: `/open_api/${project_key}/workflow/${work_item_type_key}/${work_item_id}/node/${node_id}/operate`,
 			body: body,
+			timeout: options.timeout,
 		});
 	}
 };

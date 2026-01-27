@@ -1,10 +1,12 @@
 import { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import RequestUtils from '../../../help/utils/RequestUtils';
 import { ResourceOperations } from '../../../help/type/IResource';
+import { commonOptions, ICommonOptionsValue } from '../../../help/utils/sharedOptions';
 
 const SpaceDetailOperate: ResourceOperations = {
 	name: '获取空间详情',
 	value: 'space:detail',
+	order: 2,
 	options: [
 		{
 			displayName: '项目Key列表',
@@ -27,11 +29,13 @@ const SpaceDetailOperate: ResourceOperations = {
 			default: '',
 			description: '指定查询用户，当用户为空间管理员时，返回该空间的管理员信息。留空时将使用凭据中的用户ID。开发者自己的 user_key 可在飞书项目空间左下角双击个人头像获取；租户内其他成员的 user_key 请通过搜索租户内的用户列表接口获取。',
 		},
+		commonOptions,
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {
 		const projectKeys = this.getNodeParameter('project_keys', index) as string[] | string;
 		const simpleNames = this.getNodeParameter('simple_names', index) as string[] | string;
 		const userKey = this.getNodeParameter('user_key', index) as string;
+		const options = this.getNodeParameter('options', index, {}) as ICommonOptionsValue;
 
 		const body: IDataObject = {};
 
@@ -70,6 +74,7 @@ const SpaceDetailOperate: ResourceOperations = {
 			method: 'POST',
 			url: `/open_api/projects/detail`,
 			body: body,
+			timeout: options.timeout,
 		});
 	}
 };

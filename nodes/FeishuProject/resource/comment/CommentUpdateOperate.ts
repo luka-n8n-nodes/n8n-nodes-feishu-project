@@ -2,10 +2,12 @@ import { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import RequestUtils from '../../../help/utils/RequestUtils';
 import NodeUtils from '../../../help/utils/NodeUtils';
 import { ResourceOperations } from '../../../help/type/IResource';
+import { commonOptions, ICommonOptionsValue } from '../../../help/utils/sharedOptions';
 
 const CommentUpdateOperate: ResourceOperations = {
 	name: '更新评论',
 	value: 'comment:update',
+	order: 30,
 	options: [
 		{
 			displayName: '空间ID',
@@ -53,6 +55,7 @@ const CommentUpdateOperate: ResourceOperations = {
 			default: JSON.stringify([], null, 2),
 			description: '支持富文本格式的评论内容，JSON格式。与 content 参数不能同时为空。如果两者都提供，rich_text 优先。富文本格式详见：https://project.feishu.cn/b/helpcenter/1p8d7djs/1tj6ggll#110a33af',
 		},
+		commonOptions,
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {
 		const project_key = this.getNodeParameter('project_key', index) as string;
@@ -61,6 +64,7 @@ const CommentUpdateOperate: ResourceOperations = {
 		const comment_id = this.getNodeParameter('comment_id', index) as string;
 		const content = this.getNodeParameter('content', index) as string;
 		const richTextParam = this.getNodeParameter('rich_text', index) as string;
+		const options = this.getNodeParameter('options', index, {}) as ICommonOptionsValue;
 
 		const body: IDataObject = {};
 
@@ -89,6 +93,7 @@ const CommentUpdateOperate: ResourceOperations = {
 			method: 'PUT',
 			url: `/open_api/${project_key}/work_item/${work_item_type_key}/${work_item_id}/comment/${comment_id}`,
 			body: body,
+			timeout: options.timeout,
 		});
 	}
 };

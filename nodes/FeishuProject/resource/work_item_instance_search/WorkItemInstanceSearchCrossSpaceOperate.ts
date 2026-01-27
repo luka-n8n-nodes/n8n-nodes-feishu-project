@@ -2,10 +2,12 @@ import { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import RequestUtils from '../../../help/utils/RequestUtils';
 import NodeUtils from '../../../help/utils/NodeUtils';
 import { ResourceOperations } from '../../../help/type/IResource';
+import { timeoutOnlyOptions, ICommonOptionsValue } from '../../../help/utils/sharedOptions';
 
 const WorkItemInstanceSearchCrossSpaceOperate: ResourceOperations = {
 	name: '获取指定的工作项列表（跨空间）',
 	value: 'work_item_instance_search:cross_space',
+	order: 2,
 	options: [
 		{
 			displayName: '请求体参数',
@@ -56,9 +58,11 @@ const WorkItemInstanceSearchCrossSpaceOperate: ResourceOperations = {
 			}, null, 2),
 			description: '完整的请求体参数，JSON格式 , 详见：https://project.feishu.cn/b/helpcenter/1p8d7djs/568y2esm',
 		},
+		timeoutOnlyOptions,
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {
 		const bodyParam = this.getNodeParameter('body', index) as string;
+		const options = this.getNodeParameter('options', index, {}) as ICommonOptionsValue;
 
 		const body: IDataObject = NodeUtils.parseJsonParameter(bodyParam, '请求体参数');
 
@@ -66,6 +70,7 @@ const WorkItemInstanceSearchCrossSpaceOperate: ResourceOperations = {
 			method: 'POST',
 			url: `/open_api/work_items/filter_across_project`,
 			body: body,
+			timeout: options.timeout,
 		});
 	}
 };

@@ -2,10 +2,12 @@ import { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import RequestUtils from '../../../help/utils/RequestUtils';
 import NodeUtils from '../../../help/utils/NodeUtils';
 import { ResourceOperations } from '../../../help/type/IResource';
+import { commonOptions, ICommonOptionsValue } from '../../../help/utils/sharedOptions';
 
 const SpaceRelationUnbindOperate: ResourceOperations = {
 	name: '解绑空间关联的关联工作项实例',
 	value: 'space_relation:unbind',
+	order: 4,
 	options: [
 		{
 			displayName: '项目Key',
@@ -41,6 +43,7 @@ const SpaceRelationUnbindOperate: ResourceOperations = {
 			}, null, 2),
 			description: '完整的请求体参数，JSON格式',
 		},
+		commonOptions,
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {
 		const project_key = this.getNodeParameter('project_key', index) as string;
@@ -48,11 +51,13 @@ const SpaceRelationUnbindOperate: ResourceOperations = {
 		const work_item_id = this.getNodeParameter('work_item_id', index) as string;
 		const bodyParam = this.getNodeParameter('body', index) as string;
 		const body: IDataObject = NodeUtils.parseJsonParameter(bodyParam, '请求体参数');
+		const options = this.getNodeParameter('options', index, {}) as ICommonOptionsValue;
 
 		return RequestUtils.request.call(this, {
 			method: 'POST',
 			url: `/open_api/${project_key}/relation/${work_item_type_key}/${work_item_id}`,
 			body: body,
+			timeout: options.timeout,
 		});
 	}
 };

@@ -1,10 +1,12 @@
 import { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import RequestUtils from '../../../help/utils/RequestUtils';
 import { ResourceOperations } from '../../../help/type/IResource';
+import { timeoutOnlyOptions, ICommonOptionsValue } from '../../../help/utils/sharedOptions';
 
 const CommentQueryOperate: ResourceOperations = {
 	name: '查询评论',
 	value: 'comment:query',
+	order: 20,
 	options: [
 		{
 			displayName: '空间ID',
@@ -44,6 +46,7 @@ const CommentQueryOperate: ResourceOperations = {
 			default: 10,
 			description: '每页返回的数据条数，最大支持200条',
 		},
+		timeoutOnlyOptions,
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {
 		const project_key = this.getNodeParameter('project_key', index) as string;
@@ -51,6 +54,7 @@ const CommentQueryOperate: ResourceOperations = {
 		const work_item_id = this.getNodeParameter('work_item_id', index) as string;
 		const page_num = this.getNodeParameter('page_num', index, 1) as number;
 		const page_size = this.getNodeParameter('page_size', index, 10) as number;
+		const options = this.getNodeParameter('options', index, {}) as ICommonOptionsValue;
 
 		const qs: IDataObject = {};
 
@@ -68,6 +72,7 @@ const CommentQueryOperate: ResourceOperations = {
 			method: 'GET',
 			url: `/open_api/${project_key}/work_item/${work_item_type_key}/${work_item_id}/comments`,
 			qs: qs,
+			timeout: options.timeout,
 		});
 	}
 };

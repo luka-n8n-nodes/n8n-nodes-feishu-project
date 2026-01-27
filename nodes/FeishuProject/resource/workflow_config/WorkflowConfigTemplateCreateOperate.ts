@@ -1,10 +1,12 @@
 import { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import RequestUtils from '../../../help/utils/RequestUtils';
 import { ResourceOperations } from '../../../help/type/IResource';
+import { commonOptions, ICommonOptionsValue } from '../../../help/utils/sharedOptions';
 
 const WorkflowConfigTemplateCreateOperate: ResourceOperations = {
 	name: '新增流程模板',
 	value: 'workflow_config:template_create',
+	order: 1,
 	options: [
 		{
 			displayName: '空间ID',
@@ -37,12 +39,14 @@ const WorkflowConfigTemplateCreateOperate: ResourceOperations = {
 			default: '0',
 			description: '复制的模板ID，如果提供此参数，将基于该模板创建新模板。默认为0表示不复制',
 		},
+		commonOptions,
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {
 		const projectKey = this.getNodeParameter('project_key', index) as string;
 		const workItemTypeKey = this.getNodeParameter('work_item_type_key', index) as string;
 		const templateName = this.getNodeParameter('template_name', index) as string;
 		const copyTemplateId = this.getNodeParameter('copy_template_id', index) as string;
+		const options = this.getNodeParameter('options', index, {}) as ICommonOptionsValue;
 
 		const body: IDataObject = {
 			project_key: projectKey,
@@ -55,6 +59,7 @@ const WorkflowConfigTemplateCreateOperate: ResourceOperations = {
 			method: 'POST',
 			url: `/open_api/template/v2/create_template`,
 			body: body,
+			timeout: options.timeout,
 		});
 	}
 };

@@ -2,10 +2,12 @@ import { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import RequestUtils from '../../../help/utils/RequestUtils';
 import NodeUtils from '../../../help/utils/NodeUtils';
 import { ResourceOperations } from '../../../help/type/IResource';
+import { commonOptions, ICommonOptionsValue } from '../../../help/utils/sharedOptions';
 
 const WorkflowConfigTemplateUpdateOperate: ResourceOperations = {
 	name: '更新流程模板',
 	value: 'workflow_config:template_update',
+	order: 4,
 	options: [
 		{
 			displayName: '空间ID',
@@ -37,12 +39,14 @@ const WorkflowConfigTemplateUpdateOperate: ResourceOperations = {
 			default: JSON.stringify([], null, 2),
 			description: '状态流程配置，遵循 StateFlowConf 结构规范，JSON格式 , 详见：https://project.feishu.cn/b/helpcenter/2.0.0/1p8d7djs/5hi2qv80',
 		},
+		commonOptions,
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {
 		const projectKey = this.getNodeParameter('project_key', index) as string;
 		const templateId = this.getNodeParameter('template_id', index) as string;
 		const workflowConfsParam = this.getNodeParameter('workflow_confs', index) as string;
 		const stateFlowConfsParam = this.getNodeParameter('state_flow_confs', index) as string;
+		const options = this.getNodeParameter('options', index, {}) as ICommonOptionsValue;
 
 		const body: IDataObject = {
 			project_key: projectKey,
@@ -63,6 +67,7 @@ const WorkflowConfigTemplateUpdateOperate: ResourceOperations = {
 			method: 'PUT',
 			url: `/open_api/template/v2/update_template`,
 			body: body,
+			timeout: options.timeout,
 		});
 	}
 };

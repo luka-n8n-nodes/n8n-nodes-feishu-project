@@ -1,10 +1,12 @@
 import { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import RequestUtils from '../../../help/utils/RequestUtils';
 import { ResourceOperations } from '../../../help/type/IResource';
+import { commonOptions, ICommonOptionsValue } from '../../../help/utils/sharedOptions';
 
 const UserSearchOperate: ResourceOperations = {
 	name: '搜索租户内的用户列表',
 	value: 'user:search',
+	order: 1,
 	options: [
 		{
 			displayName: '搜索关键词',
@@ -20,10 +22,12 @@ const UserSearchOperate: ResourceOperations = {
 			default: '',
 			description: '空间 ID (project_key)，用于判断所属哪个租户，在飞书项目空间双击空间名称获取',
 		},
+		commonOptions,
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {
 		const query = this.getNodeParameter('query', index) as string;
 		const projectKey = this.getNodeParameter('project_key', index) as string;
+		const options = this.getNodeParameter('options', index, {}) as ICommonOptionsValue;
 
 		const body: IDataObject = {};
 
@@ -41,6 +45,7 @@ const UserSearchOperate: ResourceOperations = {
 			method: 'POST',
 			url: `/open_api/user/search`,
 			body: body,
+			timeout: options.timeout,
 		});
 	}
 };

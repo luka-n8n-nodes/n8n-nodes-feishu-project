@@ -2,10 +2,12 @@ import { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import RequestUtils from '../../../help/utils/RequestUtils';
 import NodeUtils from '../../../help/utils/NodeUtils';
 import { ResourceOperations } from '../../../help/type/IResource';
+import { commonOptions, ICommonOptionsValue } from '../../../help/utils/sharedOptions';
 
 const SubtaskUpdateOperate: ResourceOperations = {
 	name: '更新子任务',
 	value: 'subtask:update',
+	order: 40,
 	options: [
 		{
 			displayName: '项目Key',
@@ -100,6 +102,7 @@ const SubtaskUpdateOperate: ResourceOperations = {
 			}, null, 2),
 			description: '完整的请求体参数，JSON格式',
 		},
+		commonOptions,
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {
 		const project_key = this.getNodeParameter('project_key', index) as string;
@@ -109,11 +112,13 @@ const SubtaskUpdateOperate: ResourceOperations = {
 		const task_id = this.getNodeParameter('task_id', index) as string;
 		const bodyParam = this.getNodeParameter('body', index) as string;
 		const body: IDataObject = NodeUtils.parseJsonParameter(bodyParam, '请求体参数');
+		const options = this.getNodeParameter('options', index, {}) as ICommonOptionsValue;
 
 		return RequestUtils.request.call(this, {
 			method: 'POST',
 			url: `/open_api/${project_key}/work_item/${work_item_type_key}/${work_item_id}/workflow/${node_id}/task/${task_id}`,
 			body: body,
+			timeout: options.timeout,
 		});
 	}
 };
