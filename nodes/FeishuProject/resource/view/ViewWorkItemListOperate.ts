@@ -19,35 +19,80 @@ const ViewWorkItemListOperate: ResourceOperations = {
 			description: '视图的唯一标识ID',
 		},
 		{
-			displayName: '页码',
-			name: 'page_num',
-			type: 'number',
-			default: 1,
-			description: '页码，从0开始',
+			displayName: 'Return All',
+			name: 'returnAll',
+			type: 'boolean',
+			default: false,
+			description: 'Whether to return all results or only up to a given limit',
 		},
 		{
-			displayName: '页大小',
-			name: 'page_size',
+			displayName: 'Limit',
+			name: 'limit',
 			type: 'number',
-			default: 10,
-			description: '每页条数',
+			default: 50,
+			typeOptions: {
+				minValue: 1,
+			},
+			displayOptions: {
+				show: {
+					returnAll: [false],
+				},
+			},
+			description: 'Max number of results to return',
 		},
 		timeoutOnlyOptions,
 	],
-	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {
+	async call(this: IExecuteFunctions, index: number): Promise<IDataObject | IDataObject[]> {
 		const project_key = this.getNodeParameter('project_key', index, '', {
 			extractValue: true,
 		}) as string;
 		const view_id = this.getNodeParameter('view_id', index) as string;
-		const page_num = this.getNodeParameter('page_num', index, 1) as number;
-		const page_size = this.getNodeParameter('page_size', index, 10) as number;
+		const returnAll = this.getNodeParameter('returnAll', index, false) as boolean;
+		const limit = this.getNodeParameter('limit', index, 50) as number;
 		const options = this.getNodeParameter('options', index, {}) as ICommonOptionsValue;
 
-		return RequestUtils.request.call(this, {
-			method: 'GET',
-			url: `/open_api/${project_key}/fix_view/${view_id}?page_num=${page_num}&page_size=${page_size}`,
-			timeout: options.timeout,
-		});
+		// 统一的请求函数
+		const fetchPage = async (pageNum: number, pageSize: number) => {
+			const response = await RequestUtils.request.call(this, {
+				method: 'GET',
+				url: `/open_api/${project_key}/fix_view/${view_id}?page_num=${pageNum}&page_size=${pageSize}`,
+				timeout: options.timeout,
+			}) as any;
+
+			return {
+				data: response?.data || [],
+				total: response?.pagination?.total || 0,
+			};
+		};
+
+		// 处理分页逻辑
+		if (returnAll) {
+			let allResults: any[] = [];
+			let pageNum = 1;
+			const pageSize = 50;
+
+			while (true) {
+				const { data, total } = await fetchPage(pageNum, pageSize);
+				allResults = allResults.concat(data);
+
+				// 检查是否还有更多数据
+				if (allResults.length >= total || data.length === 0 || pageNum >= 1000) {
+					if (pageNum >= 1000) {
+						this.logger.warn('已达到最大分页数限制(1000页)，停止获取');
+					}
+					break;
+				}
+
+				pageNum++;
+			}
+
+			return allResults;
+		} else {
+			// 单次请求，返回限制数量的数据
+			const pageSize = Math.min(limit, 50);
+			const { data } = await fetchPage(1, pageSize);
+			return data.slice(0, limit);
+		}
 	}
 };
 

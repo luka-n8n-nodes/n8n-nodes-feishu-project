@@ -12,12 +12,15 @@ const CommentUpdateOperate: ResourceOperations = {
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{
-			displayName: '关联工作项类型',
+			displayName: 'Work Item Type Name or ID',
 			name: 'work_item_type_key',
-			type: 'string',
-			required: true,
+			type: 'options',
 			default: '',
-			description: '关联工作项类型，可通过获取空间下工作项类型接口获取',
+			required: true,
+			description: '选择工作项类型。需要先选择空间。Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+			typeOptions: {
+				loadOptionsMethod: 'loadWorkItemTypes',
+			},
 		},
 		{
 			displayName: '工作项实例ID',
@@ -25,7 +28,7 @@ const CommentUpdateOperate: ResourceOperations = {
 			type: 'string',
 			required: true,
 			default: '',
-			description: '工作项实例 ID，在工作项实例详情中，展开右上角"..." > ID获取',
+			description: '工作项实例 ID，在工作项实例详情中，展开右上角 ··· > ID 获取。',
 		},
 		{
 			displayName: '评论ID',

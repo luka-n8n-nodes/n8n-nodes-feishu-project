@@ -34,6 +34,11 @@ class RequestUtils {
 			throw new Error(`Feishu Project API Error: ${res?.err_code}, ${res?.err_msg}`);
 		}
 
+		// 如果有分页信息，返回完整响应（包含 data 和 pagination）
+		if (res.pagination) {
+			return res;
+		}
+
 		// 直接返回 data 字段，如果没有则返回原始响应
 		return res.data ?? res;
 	}

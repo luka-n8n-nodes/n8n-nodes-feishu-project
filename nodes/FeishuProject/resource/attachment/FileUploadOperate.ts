@@ -1,9 +1,10 @@
-import { IDataObject, IExecuteFunctions, NodeOperationError } from 'n8n-workflow';
+import { IDataObject, IExecuteFunctions, IHttpRequestOptions, NodeOperationError } from 'n8n-workflow';
 import RequestUtils from '../../../help/utils/RequestUtils';
 import NodeUtils from '../../../help/utils/NodeUtils';
 import { ResourceOperations } from '../../../help/type/IResource';
 import { commonOptions, ICommonOptionsValue } from '../../../help/utils/sharedOptions';
 import { DESCRIPTIONS } from '../../../help/description';
+import FormData from 'form-data';
 
 /**
  * 文件上传最大大小限制 (100MB)
@@ -54,22 +55,18 @@ const FileUploadOperate: ResourceOperations = {
 		}
 
 		// 构造 FormData
-		const formData: IDataObject = {
-			file: {
-				value: file.value,
-				options: {
-					filename: file.options.filename || 'file',
-					contentType: file.options.contentType || 'application/octet-stream',
-				},
-			},
-		};
+		const formData = new FormData();
+		formData.append('file', file.value, {
+			filename: file.options.filename || 'file',
+			contentType: file.options.contentType || 'application/octet-stream',
+		});
 
 		return RequestUtils.request.call(this, {
 			method: 'POST',
 			url: `/open_api/${project_key}/file/upload`,
 			body: formData,
 			timeout: options.timeout,
-		});
+		} as IHttpRequestOptions);
 	},
 };
 

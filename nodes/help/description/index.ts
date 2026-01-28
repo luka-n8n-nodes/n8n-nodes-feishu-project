@@ -43,11 +43,10 @@ export const DESCRIPTIONS = {
 	 */
 	PROJECT_KEY_OPTIONAL: {
 		displayName: '空间',
-		name: 'project_key',
-		type: 'resourceLocator',
-		default: { mode: 'id', value: '' },
-		required: false,
-		description: '选择飞书项目空间。可以从列表选择或手动输入 project_key。',
+	name: 'project_key',
+	type: 'resourceLocator',
+	default: { mode: 'id', value: '' },
+	description: '选择飞书项目空间。可以从列表选择或手动输入 project_key。',
 		modes: [
 			{
 				displayName: '从列表选择',
@@ -112,7 +111,7 @@ export const DESCRIPTIONS = {
 		type: 'string',
 		required: true,
 		default: '',
-		description: '工作项的唯一标识符',
+		description: '工作项实例 ID，在工作项实例详情中，展开右上角 ··· > ID 获取。',
 	} as INodeProperties,
 
 	/**

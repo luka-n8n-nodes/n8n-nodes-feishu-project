@@ -20,6 +20,26 @@ export interface IWorkItemType {
 }
 
 /**
+ * 工作项字段元数据接口
+ */
+export interface IWorkItemFieldMeta {
+	field_key: string;
+	field_name: string;
+	field_alias?: string;
+	field_type_key?: string;
+	field_uuid?: string;
+	field_tips?: string;
+	label?: string;
+	is_required: number; // 1:必填, 2:非必填, 3:条件必填
+	is_validity?: number; // 1:有效, 3:条件有效
+	is_visibility?: number; // 1:可见, 2:条件可见
+	default_value?: {
+		default_appear: number; // 1:默认出现, 2:默认不出现, 3:条件出现
+		value: unknown;
+	};
+}
+
+/**
  * 获取空间列表（返回空间ID数组）
  * 调用 /open_api/projects
  */
@@ -105,4 +125,25 @@ export async function getWorkItemTypes(
 	}
 
 	return [];
+}
+
+/**
+ * 获取工作项字段元数据列表
+ * 调用 /open_api/{project_key}/work_item/{work_item_type_key}/meta
+ * @param projectKey 空间ID
+ * @param workItemTypeKey 工作项类型key
+ */
+export async function getWorkItemFieldMeta(
+	this: IExecuteFunctions,
+	projectKey: string,
+	workItemTypeKey: string,
+): Promise<IWorkItemFieldMeta[]> {
+	if (!projectKey || !workItemTypeKey) {
+		return [];
+	}
+
+	return await RequestUtils.request.call(this, {
+		method: 'GET',
+		url: `/open_api/${projectKey}/work_item/${workItemTypeKey}/meta`,
+	});
 }

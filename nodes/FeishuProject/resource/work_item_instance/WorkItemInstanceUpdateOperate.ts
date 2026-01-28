@@ -1,6 +1,5 @@
 import { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import RequestUtils from '../../../help/utils/RequestUtils';
-import NodeUtils from '../../../help/utils/NodeUtils';
 import { ResourceOperations } from '../../../help/type/IResource';
 import { commonOptions, ICommonOptionsValue } from '../../../help/utils/sharedOptions';
 import { DESCRIPTIONS } from '../../../help/description';
@@ -12,12 +11,15 @@ const WorkItemInstanceUpdateOperate: ResourceOperations = {
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{
-			displayName: '工作项类型Key',
+			displayName: 'Work Item Type Name or ID',
 			name: 'work_item_type_key',
-			type: 'string',
-			required: true,
+			type: 'options',
 			default: '',
-			description: '工作项类型的唯一标识Key',
+			required: true,
+			description: '选择工作项类型。需要先选择空间。Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+			typeOptions: {
+				loadOptionsMethod: 'loadWorkItemTypes',
+			},
 		},
 		{
 			displayName: '工作项ID',
@@ -25,28 +27,44 @@ const WorkItemInstanceUpdateOperate: ResourceOperations = {
 			type: 'string',
 			required: true,
 			default: '',
-			description: '工作项的唯一标识ID',
+			description: '工作项实例 ID，在工作项实例详情中，展开右上角 ··· > ID 获取。',
 		},
 		{
-			displayName: '请求体参数',
-			name: 'body',
-			type: 'json',
-			default: JSON.stringify({
-				"update_fields": [
-					{
-						"field_key": "",
-						"field_value": "",
-						"target_state": {
-							"state_key": "",
-							"transition_id": 0
+			displayName: '更新字段',
+			name: 'update_fields',
+			type: 'fixedCollection',
+			typeOptions: {
+				multipleValues: true,
+			},
+			placeholder: '添加字段',
+			default: {},
+			description: '需要更新的字段列表。可参考<a href="https://open.feishu.cn/document/uAjLw4CM/ukTMukTMukTM/project-v2/work_item/field-value-format">字段与属性解析格式</a>',
+			options: [
+				{
+					displayName: '字段',
+					name: 'fields',
+					values: [
+						{
+							displayName: '字段名称 Name or ID',
+							name: 'field_key',
+							type: 'options',
+							default: '',
+							required: true,
+							description: '选择要更新的字段。需要先选择空间和工作项类型。Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+							typeOptions: {
+								loadOptionsMethod: 'loadWorkItemFields',
+							},
 						},
-						"field_type_key": "",
-						"field_alias": "",
-						"help_description": ""
-					}
-				]
-			}, null, 2),
-			description: '完整的请求体参数，JSON格式',
+						{
+							displayName: '字段值',
+							name: 'field_value',
+							type: 'string',
+							default: '',
+							description: '字段值，支持任意类型。对于复杂类型（如数组、对象），请输入 JSON 格式字符串。',
+						},
+					],
+				},
+			],
 		},
 		commonOptions,
 	],
@@ -56,16 +74,50 @@ const WorkItemInstanceUpdateOperate: ResourceOperations = {
 		}) as string;
 		const work_item_type_key = this.getNodeParameter('work_item_type_key', index) as string;
 		const work_item_id = this.getNodeParameter('work_item_id', index) as string;
-		const bodyParam = this.getNodeParameter('body', index) as string;
-		const body: IDataObject = NodeUtils.parseJsonParameter(bodyParam, '请求体参数');
+
+		// 获取 fixedCollection 中的字段数据
+		const updateFieldsCollection = this.getNodeParameter('update_fields', index, {}) as IDataObject;
+		const fieldsArray = (updateFieldsCollection.fields as IDataObject[]) || [];
+
+		// 转换为 API 所需格式
+		const update_fields = fieldsArray.map((item) => {
+			let fieldValue = item.field_value;
+
+			// 尝试解析 JSON 字符串（支持复杂类型如数组、对象）
+			if (typeof fieldValue === 'string' && fieldValue.trim()) {
+				try {
+					// 检查是否是 JSON 格式
+					if (
+						(fieldValue.trim().startsWith('[') && fieldValue.trim().endsWith(']')) ||
+						(fieldValue.trim().startsWith('{') && fieldValue.trim().endsWith('}'))
+					) {
+						fieldValue = JSON.parse(fieldValue);
+					}
+				} catch {
+					// 解析失败则保持原始字符串
+				}
+			}
+
+			return {
+				field_key: item.field_key,
+				field_value: fieldValue,
+			};
+		});
+
 		const options = this.getNodeParameter('options', index, {}) as ICommonOptionsValue;
 
-		return RequestUtils.request.call(this, {
+		 await RequestUtils.request.call(this, {
 			method: 'PUT',
 			url: `/open_api/${project_key}/work_item/${work_item_type_key}/${work_item_id}`,
-			body: body,
+			body: {
+				update_fields,
+			},
 			timeout: options.timeout,
 		});
+
+		return {
+			update_fields
+		}
 	}
 };
 

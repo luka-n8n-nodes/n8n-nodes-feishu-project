@@ -6,18 +6,21 @@ import { commonOptions, ICommonOptionsValue } from '../../../help/utils/sharedOp
 import { DESCRIPTIONS } from '../../../help/description';
 
 const WorkItemInstanceWorkHourCreateOperate: ResourceOperations = {
-	name: '创建实际工时',
+	name: '新增工时登记记录',
 	value: 'work_item_instance:work_hour_create',
 	order: 130,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{
-			displayName: '工作项类型Key',
+			displayName: 'Work Item Type Name or ID',
 			name: 'work_item_type_key',
-			type: 'string',
-			required: true,
+			type: 'options',
 			default: '',
-			description: '工作项类型的唯一标识Key',
+			required: true,
+			description: '选择工作项类型。需要先选择空间。Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+			typeOptions: {
+				loadOptionsMethod: 'loadWorkItemTypes',
+			},
 		},
 		{
 			displayName: '工作项ID',
@@ -25,16 +28,36 @@ const WorkItemInstanceWorkHourCreateOperate: ResourceOperations = {
 			type: 'string',
 			required: true,
 			default: '',
-			description: '工作项的唯一标识ID',
+			description: '工作项实例 ID，在工作项实例详情中，展开右上角 ··· > ID 获取。',
+		},
+		{
+			displayName: '工作开始日期',
+			name: 'work_begin_date',
+			type: 'dateTime',
+			required: true,
+			default: '',
+			description: '工作开始日期，支持日期选择器或表达式传入毫秒时间戳',
+		},
+		{
+			displayName: '工作结束日期',
+			name: 'work_end_date',
+			type: 'dateTime',
+			required: true,
+			default: '',
+			description: '工作结束日期，支持日期选择器或表达式传入毫秒时间戳',
+		},
+		{
+			displayName: '包含节假日',
+			name: 'include_holidays',
+			type: 'boolean',
+			default: true,
+			description: 'Whether to include holidays in the work hour record',
 		},
 		{
 			displayName: '请求体参数',
 			name: 'body',
 			type: 'json',
 			default: JSON.stringify({
-				"work_begin_date": 1724051666000,
-				"work_end_date": 1724342400000,
-				"include_holidays": true,
 				"working_hour_records": [
 					{
 						"resource_type": "",
@@ -54,9 +77,23 @@ const WorkItemInstanceWorkHourCreateOperate: ResourceOperations = {
 		}) as string;
 		const work_item_type_key = this.getNodeParameter('work_item_type_key', index) as string;
 		const work_item_id = this.getNodeParameter('work_item_id', index) as string;
+		const work_begin_date_raw = this.getNodeParameter('work_begin_date', index) as string | number;
+		const work_end_date_raw = this.getNodeParameter('work_end_date', index) as string | number;
+		const include_holidays = this.getNodeParameter('include_holidays', index) as boolean;
 		const bodyParam = this.getNodeParameter('body', index) as string;
 		const body: IDataObject = NodeUtils.parseJsonParameter(bodyParam, '请求体参数');
 		const options = this.getNodeParameter('options', index, {}) as ICommonOptionsValue;
+
+		// 转换日期为毫秒时间戳
+		const toTimestamp = (value: string | number): number => {
+			if (typeof value === 'number') return value;
+			if (/^\d+$/.test(value)) return parseInt(value, 10);
+			return new Date(value).getTime();
+		};
+
+		body.work_begin_date = toTimestamp(work_begin_date_raw);
+		body.work_end_date = toTimestamp(work_end_date_raw);
+		body.include_holidays = include_holidays;
 
 		return RequestUtils.request.call(this, {
 			method: 'POST',

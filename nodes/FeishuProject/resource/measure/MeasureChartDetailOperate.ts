@@ -16,7 +16,7 @@ const MeasureChartDetailOperate: ResourceOperations = {
 			type: 'string',
 			required: true,
 			default: '',
-			description: '图表的唯一标识ID',
+			description: '图表的唯一标识ID，详见：<a href="https://project.feishu.cn/b/helpcenter/2.0.0/1p8d7djs/374vhy4w">图表与属性解析格式</a>',
 		},
 		commonOptions,
 	],

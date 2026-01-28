@@ -4,6 +4,7 @@ import {
 	ILoadOptionsFunctions,
 	INodeExecutionData,
 	INodeListSearchResult,
+	INodePropertyOptions,
 	INodeType,
 	INodeTypeDescription,
 	NodeConnectionTypes,
@@ -19,8 +20,10 @@ import {
 	getSpaceList,
 	getSpaceDetails,
 	getWorkItemTypes,
+	getWorkItemFieldMeta,
 	ISpaceDetail,
 	IWorkItemType,
+	IWorkItemFieldMeta,
 } from './GenericFunctions';
 
 const resourceBuilder = ResourceFactory.build(__dirname);
@@ -409,6 +412,135 @@ export class FeishuProject implements INodeType {
 						value: type.type_key as string,
 					})),
 				};
+			},
+		},
+		loadOptions: {
+			/**
+			 * 加载空间列表选项（用于 multiOptions 字段）
+			 */
+			async loadSpaces(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				try {
+					// 获取空间ID列表
+					const spaceIds = await getSpaceList.call(this as unknown as IExecuteFunctions);
+
+					if (!spaceIds || spaceIds.length === 0) {
+						return [];
+					}
+
+					// 获取空间详情
+					const spaceDetails = await getSpaceDetails.call(
+						this as unknown as IExecuteFunctions,
+						spaceIds,
+					);
+
+					return spaceDetails.map((space: ISpaceDetail) => ({
+						name: `${space.name} (${space.project_key})`,
+						value: space.project_key as string,
+					}));
+				} catch {
+					return [];
+				}
+			},
+			/**
+			 * 加载工作项类型选项（用于 multiOptions 字段）
+			 * 依赖：需要先选择空间（project_key）
+			 */
+			async loadWorkItemTypes(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				try {
+					const projectKey = this.getNodeParameter('project_key', undefined, {
+						extractValue: true,
+					}) as string;
+
+					if (!projectKey) {
+						return [];
+					}
+
+					const workItemTypes = await getWorkItemTypes.call(
+						this as unknown as IExecuteFunctions,
+						projectKey,
+					);
+
+					return workItemTypes.map((type: IWorkItemType) => ({
+						name: type.name as string,
+						value: type.type_key as string,
+					}));
+				} catch {
+					return [];
+				}
+			},
+			/**
+			 * 加载工作项字段列表选项
+			 * 依赖：需要先选择空间（project_key）和工作项类型（work_item_type_key）
+			 */
+			async loadWorkItemFields(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				// 需要过滤掉的字段类型列表
+				const excludedFieldTypes = [
+					'multi_file', // 附件
+				];
+
+				try {
+					// project_key 是 resourceLocator 类型，需要 extractValue
+					const projectKey = this.getNodeParameter('project_key', undefined, {
+						extractValue: true,
+					}) as string;
+					// work_item_type_key 是普通 options 类型，不需要 extractValue
+					const workItemTypeKey = this.getNodeParameter('work_item_type_key') as string;
+
+					if (!projectKey || !workItemTypeKey) {
+						return [];
+					}
+
+					const fieldMeta = await getWorkItemFieldMeta.call(
+						this as unknown as IExecuteFunctions,
+						projectKey,
+						workItemTypeKey,
+					);
+
+					return fieldMeta
+						// 过滤掉不支持的字段类型
+						.filter((field: IWorkItemFieldMeta) => !excludedFieldTypes.includes(field.field_type_key || ''))
+						.map((field: IWorkItemFieldMeta) => ({
+							name: `${field.field_name}${field.is_required === 1 ? ' *' : ''}`,
+							value: field.field_key as string,
+							description: `类型: ${field.field_type_key || '未知'}${field.is_required === 1 ? ' (必填)' : field.is_required === 3 ? ' (条件必填)' : ''}`,
+						}));
+				} catch {
+					return [];
+				}
+			},
+			/**
+			 * 加载附件字段列表选项（仅返回 multi_file 类型）
+			 * 依赖：需要先选择空间（project_key）和工作项类型（work_item_type_key）
+			 */
+			async loadAttachmentFields(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				try {
+					// project_key 是 resourceLocator 类型，需要 extractValue
+					const projectKey = this.getNodeParameter('project_key', undefined, {
+						extractValue: true,
+					}) as string;
+					// work_item_type_key 是普通 options 类型，不需要 extractValue
+					const workItemTypeKey = this.getNodeParameter('work_item_type_key') as string;
+
+					if (!projectKey || !workItemTypeKey) {
+						return [];
+					}
+
+					const fieldMeta = await getWorkItemFieldMeta.call(
+						this as unknown as IExecuteFunctions,
+						projectKey,
+						workItemTypeKey,
+					);
+
+					return fieldMeta
+						// 只保留附件类型字段（multi_file）
+						.filter((field: IWorkItemFieldMeta) => field.field_type_key === 'multi_file')
+						.map((field: IWorkItemFieldMeta) => ({
+							name: field.field_name as string,
+							value: field.field_key as string,
+						}));
+				} catch {
+					return [];
+				}
 			},
 		},
 	};
