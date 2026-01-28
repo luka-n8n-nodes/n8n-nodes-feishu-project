@@ -1,66 +1,73 @@
-import { IDataObject, IExecuteFunctions } from 'n8n-workflow';
+import { IDataObject, IExecuteFunctions, IHttpRequestOptions, NodeOperationError } from 'n8n-workflow';
 import RequestUtils from '../../../help/utils/RequestUtils';
+import NodeUtils from '../../../help/utils/NodeUtils';
 import { ResourceOperations } from '../../../help/type/IResource';
+import { commonOptions, ICommonOptionsValue } from '../../../help/utils/sharedOptions';
+import { DESCRIPTIONS } from '../../../help/description';
+import FormData from 'form-data';
+
+/**
+ * 文件上传最大大小限制 (100MB)
+ */
+const MAX_FILE_SIZE = 100 * 1024 * 1024;
 
 const FileUploadOperate: ResourceOperations = {
 	name: '文件上传',
 	value: 'file:upload',
+	order: 10,
 	options: [
-		{
-			displayName: '项目Key',
-			name: 'project_key',
-			type: 'string',
-			required: true,
-			default: '',
-			description: '项目的唯一标识Key',
-		},
+		DESCRIPTIONS.PROJECT_KEY,
 		{
 			displayName: 'Input Binary Field',
 			name: 'binaryPropertyName',
 			type: 'string',
 			required: true,
 			default: 'data',
-			description: '包含要上传文件的二进制数据字段名，附件-目前最大支持100MB , 详见：https://project.feishu.cn/b/helpcenter/2.0.0/1p8d7djs/g33r3mo4',
+			description:
+				'包含要上传文件的二进制数据字段名，附件-目前最大支持100MB , 详见：https://project.feishu.cn/b/helpcenter/2.0.0/1p8d7djs/g33r3mo4',
 		},
+		commonOptions,
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {
-		const project_key = this.getNodeParameter('project_key', index) as string;
+		const project_key = this.getNodeParameter('project_key', index, '', {
+			extractValue: true,
+		}) as string;
 		const binaryPropertyName = this.getNodeParameter('binaryPropertyName', index) as string;
+		const options = this.getNodeParameter('options', index, {}) as ICommonOptionsValue;
 
-		// 获取二进制数据信息
-		const items = this.getInputData();
-		const binaryData = items[index].binary;
+		// 使用 NodeUtils.buildUploadFileData 构建上传数据
+		const file = await NodeUtils.buildUploadFileData.call(this, binaryPropertyName, index);
 
-		if (!binaryData || !binaryData[binaryPropertyName]) {
-			throw new Error(`在索引 ${index} 的项目中未找到二进制数据 "${binaryPropertyName}"`);
+		if (!file || !file.value) {
+			throw new NodeOperationError(
+				this.getNode(),
+				'未找到文件数据，请检查二进制文件字段名是否正确',
+			);
 		}
 
-		const fileInfo = binaryData[binaryPropertyName];
+		// 检查文件大小
+		const fileSize = file.value.length;
+		if (fileSize > MAX_FILE_SIZE) {
+			throw new NodeOperationError(
+				this.getNode(),
+				`文件大小 (${Math.round(fileSize / 1024 / 1024)}MB) 超过限制，附件最大支持100MB`,
+			);
+		}
 
-		// 获取实际的二进制数据Buffer
-		const binaryDataBuffer = await this.helpers.getBinaryDataBuffer(
-			index,
-			binaryPropertyName,
-		);
-
-		// 构造正确的FormData格式
-		const formData: IDataObject = {
-			file: {
-				value: binaryDataBuffer,
-				options: {
-					filename: fileInfo.fileName || 'file',
-					contentType: fileInfo.mimeType || 'application/octet-stream',
-				},
-			},
-		};
+		// 构造 FormData
+		const formData = new FormData();
+		formData.append('file', file.value, {
+			filename: file.options.filename || 'file',
+			contentType: file.options.contentType || 'application/octet-stream',
+		});
 
 		return RequestUtils.request.call(this, {
 			method: 'POST',
 			url: `/open_api/${project_key}/file/upload`,
-			formData: formData,
-			json: true,
-		});
-	}
+			body: formData,
+			timeout: options.timeout,
+		} as IHttpRequestOptions);
+	},
 };
 
 export default FileUploadOperate;

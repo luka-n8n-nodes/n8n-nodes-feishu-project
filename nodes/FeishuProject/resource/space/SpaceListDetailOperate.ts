@@ -3,10 +3,10 @@ import RequestUtils from '../../../help/utils/RequestUtils';
 import { ResourceOperations } from '../../../help/type/IResource';
 import { commonOptions, ICommonOptionsValue } from '../../../help/utils/sharedOptions';
 
-const SpaceListOperate: ResourceOperations = {
-	name: '获取空间列表',
-	value: 'space:list',
-	order: 1,
+const SpaceListDetailOperate: ResourceOperations = {
+	name: '获取空间列表详情（自定义封装）',
+	value: 'space:list_detail',
+	order: 4,
 	options: [
 		{
 			displayName: '排序方式',
@@ -35,31 +35,56 @@ const SpaceListOperate: ResourceOperations = {
 		},
 		commonOptions,
 	],
-	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {
+	async call(this: IExecuteFunctions, index: number): Promise<IDataObject[]> {
 		const orderValue = this.getNodeParameter('order', index) as string;
 		const options = this.getNodeParameter('options', index, {}) as ICommonOptionsValue;
 
 		const credentials = await this.getCredentials('feishuProjectApi');
-		const body: IDataObject = {
-			user_key: credentials.userId as string,
+		const userKey = credentials.userId as string;
+
+		// 步骤1：获取空间ID列表
+		const listBody: IDataObject = {
+			user_key: userKey,
 		};
 
-		// 如果选择了排序方式，则添加到body中
 		if (orderValue) {
-			body.order = [orderValue];
+			listBody.order = [orderValue];
 		}
 
-		const response = await RequestUtils.request.call(this, {
+		const spaceIds = await RequestUtils.request.call(this, {
 			method: 'POST',
-			url: `/open_api/projects`,
-			body: body,
+			url: '/open_api/projects',
+			body: listBody,
 			timeout: options.timeout,
 		});
 
-		return {
-			data: response,
+		// 如果没有空间，直接返回空数组
+		if (!Array.isArray(spaceIds) || spaceIds.length === 0) {
+			return [];
 		}
-	}
+
+		// 步骤2：获取空间详情（API 限制最多100个）
+		const limitedKeys = spaceIds.slice(0, 100);
+
+		const detailBody: IDataObject = {
+			project_keys: limitedKeys,
+			user_key: userKey,
+		};
+
+		const response = await RequestUtils.request.call(this, {
+			method: 'POST',
+			url: '/open_api/projects/detail',
+			body: detailBody,
+			timeout: options.timeout,
+		});
+
+		// 将对象格式转换为数组格式
+		if (response && typeof response === 'object') {
+			return Object.values(response) as IDataObject[];
+		}
+
+		return [];
+	},
 };
 
-export default SpaceListOperate;
+export default SpaceListDetailOperate;

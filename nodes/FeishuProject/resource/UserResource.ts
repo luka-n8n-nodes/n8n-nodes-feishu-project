@@ -1,8 +1,9 @@
-import {ResourceOptions} from "../../help/type/IResource";
+import { ResourceOptions } from '../../help/type/IResource';
 
-const MessageResource: ResourceOptions = {
+const UserResource: ResourceOptions = {
 	name: '用户',
 	value: 'user',
+	order: 120,
 };
 
-export default MessageResource;
+export default UserResource;

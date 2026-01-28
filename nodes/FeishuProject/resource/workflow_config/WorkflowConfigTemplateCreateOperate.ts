@@ -1,26 +1,25 @@
 import { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import RequestUtils from '../../../help/utils/RequestUtils';
 import { ResourceOperations } from '../../../help/type/IResource';
+import { commonOptions, ICommonOptionsValue } from '../../../help/utils/sharedOptions';
+import { DESCRIPTIONS } from '../../../help/description';
 
 const WorkflowConfigTemplateCreateOperate: ResourceOperations = {
 	name: '新增流程模板',
 	value: 'workflow_config:template_create',
+	order: 1,
 	options: [
+		DESCRIPTIONS.PROJECT_KEY,
 		{
-			displayName: '空间ID',
-			name: 'project_key',
-			type: 'string',
-			default: '',
-			required: true,
-			description: '空间 ID (project_key) 或空间域名 (simple_name)。project_key 在飞书项目空间双击空间名称获取；simple_name 一般在飞书项目空间 URL 中获取，例如空间 URL为"https://project.feishu.cn/doc/overview"，则 simple_name 为"doc"',
-		},
-		{
-			displayName: '工作项类型Key',
+			displayName: 'Work Item Type Name or ID',
 			name: 'work_item_type_key',
-			type: 'string',
+			type: 'options',
 			default: '',
 			required: true,
-			description: '工作项类型的唯一标识Key',
+			description: '选择工作项类型。需要先选择空间。Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+			typeOptions: {
+				loadOptionsMethod: 'loadWorkItemTypes',
+			},
 		},
 		{
 			displayName: '模板名称',
@@ -37,12 +36,16 @@ const WorkflowConfigTemplateCreateOperate: ResourceOperations = {
 			default: '0',
 			description: '复制的模板ID，如果提供此参数，将基于该模板创建新模板。默认为0表示不复制',
 		},
+		commonOptions,
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {
-		const projectKey = this.getNodeParameter('project_key', index) as string;
+		const projectKey = this.getNodeParameter('project_key', index, '', {
+			extractValue: true,
+		}) as string;
 		const workItemTypeKey = this.getNodeParameter('work_item_type_key', index) as string;
 		const templateName = this.getNodeParameter('template_name', index) as string;
 		const copyTemplateId = this.getNodeParameter('copy_template_id', index) as string;
+		const options = this.getNodeParameter('options', index, {}) as ICommonOptionsValue;
 
 		const body: IDataObject = {
 			project_key: projectKey,
@@ -55,6 +58,7 @@ const WorkflowConfigTemplateCreateOperate: ResourceOperations = {
 			method: 'POST',
 			url: `/open_api/template/v2/create_template`,
 			body: body,
+			timeout: options.timeout,
 		});
 	}
 };

@@ -1,5 +1,5 @@
 import { INodePropertyOptions, INodeProperties } from 'n8n-workflow';
-import { IResource, ResourceOperations } from '../type/IResource';
+import { IResource, ResourceOperations, OperationCallFunction } from '../type/IResource';
 
 class ResourceBuilder {
 	resources: IResource[] = [];
@@ -82,14 +82,12 @@ class ResourceBuilder {
 		return list;
 	}
 
-	getCall(resourceName: string, operateName: string): Function | null {
+	getCall(resourceName: string, operateName: string): OperationCallFunction | undefined {
 		const resource = this.resources.find((item) => item.value === resourceName);
 		if (!resource) {
-			// @ts-ignore
-			return null;
+			return undefined;
 		}
 		const operate = resource.operations.find((item) => item.value === operateName);
-		// @ts-ignore
 		return operate?.call;
 	}
 }

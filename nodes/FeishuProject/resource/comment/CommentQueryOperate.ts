@@ -1,26 +1,25 @@
 import { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import RequestUtils from '../../../help/utils/RequestUtils';
 import { ResourceOperations } from '../../../help/type/IResource';
+import { timeoutOnlyOptions, ICommonOptionsValue } from '../../../help/utils/sharedOptions';
+import { DESCRIPTIONS } from '../../../help/description';
 
 const CommentQueryOperate: ResourceOperations = {
 	name: '查询评论',
 	value: 'comment:query',
+	order: 20,
 	options: [
+		DESCRIPTIONS.PROJECT_KEY,
 		{
-			displayName: '空间ID',
-			name: 'project_key',
-			type: 'string',
-			required: true,
-			default: '',
-			description: '空间 ID (project_key) 或空间域名 (simple_name)。project_key 在飞书项目空间双击空间名称获取；simple_name 一般在飞书项目空间 URL 中获取，例如空间 URL为"https://project.feishu.cn/doc/overview"，则 simple_name 为"doc"',
-		},
-		{
-			displayName: '工作项类型Key',
+			displayName: 'Work Item Type Name or ID',
 			name: 'work_item_type_key',
-			type: 'string',
-			required: true,
+			type: 'options',
 			default: '',
-			description: '工作项类型，可通过获取空间下工作项类型接口获取',
+			required: true,
+			description: '选择工作项类型。需要先选择空间。Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+			typeOptions: {
+				loadOptionsMethod: 'loadWorkItemTypes',
+			},
 		},
 		{
 			displayName: '工作项实例ID',
@@ -28,47 +27,90 @@ const CommentQueryOperate: ResourceOperations = {
 			type: 'string',
 			required: true,
 			default: '',
-			description: '工作项实例 ID，在工作项实例详情中，展开右上角"..." > ID获取',
+			description: '工作项实例 ID，在工作项实例详情中，展开右上角 ··· > ID 获取。',
 		},
 		{
-			displayName: '分页页码',
-			name: 'page_num',
-			type: 'number',
-			default: 1,
-			description: '分页页码，从1开始计数，默认值为1',
+			displayName: 'Return All',
+			name: 'returnAll',
+			type: 'boolean',
+			default: false,
+			description: 'Whether to return all results or only up to a given limit',
 		},
 		{
-			displayName: '每页条数',
-			name: 'page_size',
+			displayName: 'Limit',
+			name: 'limit',
 			type: 'number',
-			default: 10,
-			description: '每页返回的数据条数，最大支持200条',
+			default: 50,
+			typeOptions: {
+				minValue: 1,
+			},
+			displayOptions: {
+				show: {
+					returnAll: [false],
+				},
+			},
+			description: 'Max number of results to return',
 		},
+		timeoutOnlyOptions,
 	],
-	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {
-		const project_key = this.getNodeParameter('project_key', index) as string;
+	async call(this: IExecuteFunctions, index: number): Promise<IDataObject | IDataObject[]> {
+		const project_key = this.getNodeParameter('project_key', index, '', {
+			extractValue: true,
+		}) as string;
 		const work_item_type_key = this.getNodeParameter('work_item_type_key', index) as string;
 		const work_item_id = this.getNodeParameter('work_item_id', index) as string;
-		const page_num = this.getNodeParameter('page_num', index, 1) as number;
-		const page_size = this.getNodeParameter('page_size', index, 10) as number;
+		const returnAll = this.getNodeParameter('returnAll', index, false) as boolean;
+		const limit = this.getNodeParameter('limit', index, 50) as number;
+		const options = this.getNodeParameter('options', index, {}) as ICommonOptionsValue;
 
-		const qs: IDataObject = {};
+		// 统一的请求函数
+		const fetchPage = async (pageNum: number, pageSize: number) => {
+			const qs: IDataObject = {
+				page_num: pageNum,
+				page_size: pageSize,
+			};
 
-		// 如果提供了 page_num，添加到查询参数
-		if (page_num !== undefined && page_num > 0) {
-			qs.page_num = page_num;
+			const response = await RequestUtils.request.call(this, {
+				method: 'GET',
+				url: `/open_api/${project_key}/work_item/${work_item_type_key}/${work_item_id}/comments`,
+				qs: qs,
+				timeout: options.timeout,
+			}) as any;
+
+			return {
+				data: response?.data || [],
+				total: response?.pagination?.total || 0,
+			};
+		};
+
+		// 处理分页逻辑
+		if (returnAll) {
+			let allResults: any[] = [];
+			let pageNum = 1;
+			const pageSize = 200; // 最大支持200条
+
+			while (true) {
+				const { data, total } = await fetchPage(pageNum, pageSize);
+				allResults = allResults.concat(data);
+
+				// 检查是否还有更多数据
+				if (allResults.length >= total || data.length === 0 || pageNum >= 1000) {
+					if (pageNum >= 1000) {
+						this.logger.warn('已达到最大分页数限制(1000页)，停止获取');
+					}
+					break;
+				}
+
+				pageNum++;
+			}
+
+			return allResults;
+		} else {
+			// 单次请求，返回限制数量的数据
+			const pageSize = Math.min(limit, 200);
+			const { data } = await fetchPage(1, pageSize);
+			return data.slice(0, limit);
 		}
-
-		// 如果提供了 page_size，添加到查询参数
-		if (page_size !== undefined && page_size > 0) {
-			qs.page_size = page_size;
-		}
-
-		return RequestUtils.request.call(this, {
-			method: 'GET',
-			url: `/open_api/${project_key}/work_item/${work_item_type_key}/${work_item_id}/comments`,
-			qs: qs,
-		});
 	}
 };
 

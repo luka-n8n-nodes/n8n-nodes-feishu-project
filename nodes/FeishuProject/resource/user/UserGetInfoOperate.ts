@@ -1,10 +1,12 @@
 import { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import RequestUtils from '../../../help/utils/RequestUtils';
 import { ResourceOperations } from '../../../help/type/IResource';
+import { commonOptions, ICommonOptionsValue } from '../../../help/utils/sharedOptions';
 
 const UserGetInfoOperate: ResourceOperations = {
 	name: '查询用户信息',
 	value: 'user:query',
+	order: 4,
 	options: [
 		{
 			displayName: '用户Key列表',
@@ -34,12 +36,14 @@ const UserGetInfoOperate: ResourceOperations = {
 			default: '',
 			description: '待查询用户所在飞书项目租户的 saas_tenant_key。此参数适用于邮箱查询场景。当查询非插件关联租户的用户时，此参数为必填。例如：租户X开发了插件A，租户Y安装了插件A，要查询租户Y的用户信息时，需要填写此参数。如果此参数为空，则视为查询插件关联租户下的用户信息',
 		},
+		commonOptions,
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {
 		const userKeys = this.getNodeParameter('user_keys', index) as string[] | string;
 		const outIds = this.getNodeParameter('out_ids', index) as string[] | string;
 		const emails = this.getNodeParameter('emails', index) as string[] | string;
 		const tenantKey = this.getNodeParameter('tenant_key', index) as string;
+		const options = this.getNodeParameter('options', index, {}) as ICommonOptionsValue;
 
 		const body: IDataObject = {};
 
@@ -84,6 +88,7 @@ const UserGetInfoOperate: ResourceOperations = {
 			method: 'POST',
 			url: `/open_api/user/query`,
 			body: body,
+			timeout: options.timeout,
 		});
 	}
 };

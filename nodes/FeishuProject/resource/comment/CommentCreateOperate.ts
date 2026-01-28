@@ -2,26 +2,25 @@ import { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import RequestUtils from '../../../help/utils/RequestUtils';
 import NodeUtils from '../../../help/utils/NodeUtils';
 import { ResourceOperations } from '../../../help/type/IResource';
+import { commonOptions, ICommonOptionsValue } from '../../../help/utils/sharedOptions';
+import { DESCRIPTIONS } from '../../../help/description';
 
 const CommentCreateOperate: ResourceOperations = {
 	name: '添加评论',
 	value: 'comment:create',
+	order: 10,
 	options: [
+		DESCRIPTIONS.PROJECT_KEY,
 		{
-			displayName: '空间ID',
-			name: 'project_key',
-			type: 'string',
-			required: true,
-			default: '',
-			description: '空间 ID (project_key) 或空间域名 (simple_name)。project_key 在飞书项目空间双击空间名称获取；simple_name 一般在飞书项目空间 URL 中获取，例如空间 URL为"https://project.feishu.cn/doc/overview"，则 simple_name 为"doc"',
-		},
-		{
-			displayName: '工作项类型Key',
+			displayName: 'Work Item Type Name or ID',
 			name: 'work_item_type_key',
-			type: 'string',
-			required: true,
+			type: 'options',
 			default: '',
-			description: '工作项类型，可通过获取空间下工作项类型接口获取',
+			required: true,
+			description: '选择工作项类型。需要先选择空间。Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+			typeOptions: {
+				loadOptionsMethod: 'loadWorkItemTypes',
+			},
 		},
 		{
 			displayName: '工作项实例ID',
@@ -29,7 +28,7 @@ const CommentCreateOperate: ResourceOperations = {
 			type: 'string',
 			required: true,
 			default: '',
-			description: '工作项实例 ID，在工作项实例详情中，展开右上角"..." > ID获取',
+			description: '工作项实例 ID，在工作项实例详情中，展开右上角 ··· > ID 获取。',
 		},
 		{
 			displayName: '评论内容（纯文本）',
@@ -45,13 +44,17 @@ const CommentCreateOperate: ResourceOperations = {
 			default: JSON.stringify([], null, 2),
 			description: '支持富文本格式的评论内容，JSON格式。与 content 参数二选一传入即可，但两者不能同时为空。如果两者都提供，rich_text 优先。富文本格式详见：https://project.feishu.cn/b/helpcenter/1p8d7djs/1tj6ggll#110a33af',
 		},
+		commonOptions,
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {
-		const project_key = this.getNodeParameter('project_key', index) as string;
+		const project_key = this.getNodeParameter('project_key', index, '', {
+			extractValue: true,
+		}) as string;
 		const work_item_type_key = this.getNodeParameter('work_item_type_key', index) as string;
 		const work_item_id = this.getNodeParameter('work_item_id', index) as string;
 		const content = this.getNodeParameter('content', index) as string;
 		const richTextParam = this.getNodeParameter('rich_text', index) as string;
+		const options = this.getNodeParameter('options', index, {}) as ICommonOptionsValue;
 
 		const body: IDataObject = {};
 
@@ -80,6 +83,7 @@ const CommentCreateOperate: ResourceOperations = {
 			method: 'POST',
 			url: `/open_api/${project_key}/work_item/${work_item_type_key}/${work_item_id}/comment/create`,
 			body: body,
+			timeout: options.timeout,
 		});
 	}
 };

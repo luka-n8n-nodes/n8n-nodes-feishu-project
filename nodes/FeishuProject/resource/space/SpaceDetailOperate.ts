@@ -1,10 +1,12 @@
 import { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import RequestUtils from '../../../help/utils/RequestUtils';
 import { ResourceOperations } from '../../../help/type/IResource';
+import { commonOptions, ICommonOptionsValue } from '../../../help/utils/sharedOptions';
 
 const SpaceDetailOperate: ResourceOperations = {
 	name: '获取空间详情',
 	value: 'space:detail',
+	order: 2,
 	options: [
 		{
 			displayName: '项目Key列表',
@@ -20,18 +22,12 @@ const SpaceDetailOperate: ResourceOperations = {
 			default: '',
 			description: '安装插件的飞书项目空间 (simple_name) 列表。simple_name 一般在飞书项目空间 URL 中获取。例如空间 URL为"https://project.feishu.cn/doc/overview"，则 simple_name 为"doc"。project_keys 和 simple_names 不可同时为空。',
 		},
-		{
-			displayName: '用户标识',
-			name: 'user_key',
-			type: 'string',
-			default: '',
-			description: '指定查询用户，当用户为空间管理员时，返回该空间的管理员信息。留空时将使用凭据中的用户ID。开发者自己的 user_key 可在飞书项目空间左下角双击个人头像获取；租户内其他成员的 user_key 请通过搜索租户内的用户列表接口获取。',
-		},
+		commonOptions,
 	],
-	async call(this: IExecuteFunctions, index: number): Promise<IDataObject> {
+	async call(this: IExecuteFunctions, index: number): Promise<IDataObject[]> {
 		const projectKeys = this.getNodeParameter('project_keys', index) as string[] | string;
 		const simpleNames = this.getNodeParameter('simple_names', index) as string[] | string;
-		const userKey = this.getNodeParameter('user_key', index) as string;
+		const options = this.getNodeParameter('options', index, {}) as ICommonOptionsValue;
 
 		const body: IDataObject = {};
 
@@ -58,19 +54,19 @@ const SpaceDetailOperate: ResourceOperations = {
 			throw new Error('project_keys 和 simple_names 不可同时为空，请至少填写其中一个参数');
 		}
 
-		// 如果用户没有提供user_key，则使用凭据中的userId
-		if (!userKey) {
-			const credentials = await this.getCredentials('feishuProjectApi');
-			body.user_key = credentials.userId as string;
-		} else {
-			body.user_key = userKey;
-		}
+		// 从凭证获取 user_key
+		const credentials = await this.getCredentials('feishuProjectApi');
+		body.user_key = credentials.userId as string;
 
-		return RequestUtils.request.call(this, {
+		const response = await RequestUtils.request.call(this, {
 			method: 'POST',
 			url: `/open_api/projects/detail`,
 			body: body,
+			timeout: options.timeout,
 		});
+
+		// 将对象格式转换为纯数组格式
+		return Object.values(response) as IDataObject[];
 	}
 };
 
