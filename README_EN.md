@@ -1,224 +1,140 @@
 # @luka-cat-mimi/n8n-nodes-feishu-project
 
-Feishu Project n8n community node, providing integration support for Feishu Project Open Platform API.
+Easily manage Feishu Project in n8n — automate work item management with drag-and-drop, no coding required.
+
+## Why Choose This Node?
+
+| Pain Point | Solution |
+|------------|----------|
+| Complex Feishu Project API calls | **Dynamic Forms**: Auto-load spaces & work item types, just select from dropdown |
+| Tedious pagination handling | **Fetch All with One Click**: Auto-handle pagination, return complete data |
+| API rate limiting failures | **Batch Processing**: Auto-control request frequency, avoid rate limits |
+| Requests hanging indefinitely | **Timeout Protection**: Set timeout, abort abnormal requests promptly |
 
 ## Installation
 
-Reference: https://docs.n8n.io/integrations/community-nodes/installation/
+```
+npm install @luka-cat-mimi/n8n-nodes-feishu-project
+```
 
-Node name: `@luka-cat-mimi/n8n-nodes-feishu-project`
+Or search and install from n8n community nodes. Reference: [Community Nodes Installation Guide](https://docs.n8n.io/integrations/community-nodes/installation/)
 
-## Features
+## Supported Features (68 Operations)
 
-1. **Batch Processing**: Improve automation call efficiency
-2. **Dynamic Forms**: Significantly reduce development barriers
-3. **Timeout Handling**: Prevent requests from hanging indefinitely
-4. **Automatic Pagination**: Automatically fetch all paginated data without manual handling
+<details>
+<summary><b>Work Item Management (16)</b> - Create, update, delete, batch operations...</summary>
 
-## Feature List
+- Create work item / Query work item details / Update work item / Delete work item
+- Batch update work items / Abort work item / Get work item metadata / Get work item operation records
+- Get work item task result / Batch query review information / Query review conclusion / Update review
+- Create work hour record / Get work hour records list / Update work hour record / Delete work hour record
+</details>
 
-### User Management (4)
+<details>
+<summary><b>Work Item Search (4)</b> - Single space, complex conditions, global search...</summary>
 
-| Feature |
-|---------|
-| Get user information |
-| Search users in tenant |
-| Create user group |
-| Update user group members |
+- Single space work item search / Complex condition search / Global search / Related work item search
+</details>
 
-### Space Management (6)
+<details>
+<summary><b>Work Item Configuration (9)</b> - Field management, relation config...</summary>
 
-| Feature |
-|---------|
-| Get space list |
-| Get space list details |
-| Get space details |
-| Get space business lines |
-| Get space team members |
-| Get space work item types list |
+- Get/Update work item basic info
+- Create/Get/Update work item field
+- Create/Get/Update/Delete work item relation config
+</details>
 
-### Space Relations (4)
+<details>
+<summary><b>Space Management (6)</b> - Space list, details, members...</summary>
 
-| Feature |
-|---------|
-| Get relation rules list |
-| Bind work item relation |
-| Unbind work item relation |
-| Get related work items list |
+- Get space list / Get space list details / Get space details
+- Get space business lines / Get space team members / Get space work item types list
+</details>
 
-### Work Item Instance (16)
+<details>
+<summary><b>Space Relations (4)</b> - Work item relation binding...</summary>
 
-| Feature |
-|---------|
-| Create work item |
-| Query work item details |
-| Update work item |
-| Delete work item |
-| Batch update work items |
-| Abort work item |
-| Get work item metadata |
-| Get work item operation records |
-| Get work item task result |
-| Batch query review information |
-| Query review conclusion |
-| Update review |
-| Create work hour record |
-| Get work hour records list |
-| Update work hour record |
-| Delete work hour record |
+- Get relation rules list / Bind work item relation / Unbind work item relation / Get related work items list
+</details>
 
-### Work Item Search (4)
+<details>
+<summary><b>Workflow & Nodes (5)</b> - Workflow node operations, state changes...</summary>
 
-| Feature |
-|---------|
-| Single space work item search |
-| Complex condition search |
-| Global search |
-| Related work item search |
+- Query workflow node / Update workflow node / Operate workflow node / Change work item state / Get WBS view
+</details>
 
-### Work Item Configuration (9)
+<details>
+<summary><b>Subtasks (5)</b> - Subtask CRUD...</summary>
 
-| Feature |
-|---------|
-| Get work item basic info |
-| Update work item basic info |
-| Create work item field |
-| Get work item field |
-| Update work item field |
-| Create work item relation config |
-| Get work item relation config |
-| Update work item relation config |
-| Delete work item relation config |
+- Create subtask / Get subtask details / Update subtask / Operate subtask / Delete subtask
+</details>
 
-### Workflow & Nodes (5)
+<details>
+<summary><b>View Management (8)</b> - View creation, updates...</summary>
 
-| Feature |
-|---------|
-| Query workflow node |
-| Update workflow node |
-| Operate workflow node |
-| Change work item state |
-| Get WBS view |
+- Get view list / Create condition view / Update condition view / Create fixed view
+- Update fixed view / Delete view / Get panoramic view / Get view work items list
+</details>
 
-### Workflow Configuration (1)
+<details>
+<summary><b>Comment Management (4)</b> - Comment CRUD...</summary>
 
-| Feature |
-|---------|
-| Create workflow template |
+- Create comment / Query comments / Update comment / Delete comment
+</details>
 
-### Role & Personnel Configuration (1)
+<details>
+<summary><b>Attachment Management (4)</b> - File upload/download...</summary>
 
-| Feature |
-|---------|
-| Get workflow roles list |
+- File upload (general) / Work item attachment upload / Attachment download / Attachment delete
+</details>
 
-### Subtasks (5)
+<details>
+<summary><b>User Management (4)</b> - User info, user groups...</summary>
 
-| Feature |
-|---------|
-| Create subtask |
-| Get subtask details |
-| Update subtask |
-| Operate subtask |
-| Delete subtask |
+- Get user information / Search users in tenant / Create user group / Update user group members
+</details>
 
-### View Management (8)
+<details>
+<summary><b>Others (3)</b> - Workflow template, roles, groups, metrics...</summary>
 
-| Feature |
-|---------|
-| Get view list |
-| Create condition view |
-| Update condition view |
-| Create fixed view |
-| Update fixed view |
-| Delete view |
-| Get panoramic view |
-| Get view work items list |
+- Create workflow template / Get workflow roles list / Bot join chat / Get chart details
+</details>
 
-### Comment Management (4)
+## Quick Start
 
-| Feature |
-|---------|
-| Create comment |
-| Query comments |
-| Update comment |
-| Delete comment |
+### 1. Get Credentials
 
-### Attachment Management (4)
+| Credential | How to Get |
+|------------|------------|
+| **Plugin ID / Secret** | Feishu Project Admin → Plugin Management → Create or view plugin |
+| **User ID** | Bottom-left of Feishu Project space → Double-click your avatar |
+| **Host** | Usually `project.feishu.cn` |
 
-| Feature |
-|---------|
-| File upload (general) |
-| Work item attachment upload |
-| Attachment download |
-| Attachment delete |
+### 2. Configure Credentials
 
-### Groups (1)
+Create **Feishu Project API** credentials in n8n:
 
-| Feature |
-|---------|
-| Bot join chat |
+| Field | Example |
+|-------|---------|
+| Feishu Project Host | `project.feishu.cn` |
+| Plugin ID | `MII_0000000000000000` |
+| Plugin Secret | `AB92E56666CT8D60704743BF69C92C16` |
+| User ID | `7568516887894324252` |
 
-### Metrics (1)
+### 3. Start Using
 
-| Feature |
-|---------|
-| Get chart details |
-
-## ✨ Special Features
-
-### ⏱️ Timeout & Batch Management
-
-Most interfaces support the following advanced options:
-
-- **Timeout**: Set request timeout (milliseconds) to prevent requests from hanging indefinitely
-- **Batching**:
-  - **Items per Batch**: Number of items per batch to control request frequency
-  - **Batch Interval (ms)**: Wait time between batches to avoid API rate limiting
-
-These features can be configured in the `Options` section of interfaces, effectively handling Feishu Project API rate limits.
-
-### 🔍 Dynamic Space & Work Item Type Loading
-
-The node supports dynamic loading of space lists and work item types. When configuring parameters, you can select directly from dropdown lists without manual input.
-
-### 📂 File Upload Support
-
-Supports file upload via binary data, can be used with "Read Binary File" or other nodes to implement complete file processing workflows.
-
-## Credential Configuration
-
-Create "Feishu Project API" credentials in N8N with the following information:
-
-| Field | Description | Example |
-|-------|-------------|---------|
-| **Feishu Project Host** | Base host address of Feishu Project | `project.feishu.cn` |
-| **Plugin ID** | Feishu Project plugin ID | `MII_0000000000000000` |
-| **Plugin Secret** | Feishu Project plugin secret | `AB92E56666CT8D60704743BF69C92C16` |
-| **User ID** | User's unique ID for X-USER-KEY header | `7568516887894324252` |
-
-### Obtaining Credential Information
-
-#### Plugin ID and Plugin Secret
-
-1. Log in to Feishu Project management backend
-2. Go to plugin management page
-3. View or create a plugin to get plugin ID and secret
-
-#### User ID
-
-Developer's own user_key, double-click the personal avatar in the bottom left corner of the Feishu Project space to obtain it
+Drag in the node → Select resource and operation → Fill in parameters → Execute!
 
 ## Notes
 
-1. When using plugin credentials to access API, ensure the plugin has the required permissions
-2. Error code reference: https://project.feishu.cn/b/helpcenter/1p8d7djs/4bsmoql6
+- Ensure the plugin has the required API access permissions
+- [Error Code Reference](https://project.feishu.cn/b/helpcenter/1p8d7djs/4bsmoql6)
 
-## 📝 License
+## Support
+
+- Email: luka.cat.mimi@gmail.com
+- [Issue Feedback](https://github.com/luka-n8n-nodes/n8n-nodes-feishu-project/issues)
+
+## License
 
 MIT License
-
-## 🆘 Support
-
-- 📧 Email: luka.cat.mimi@gmail.com
-- 🐛 [Issue Feedback](https://github.com/luka-n8n-nodes/n8n-nodes-feishu-project/issues)
