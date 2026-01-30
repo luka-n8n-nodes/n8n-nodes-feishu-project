@@ -8,161 +8,162 @@ Reference: https://docs.n8n.io/integrations/community-nodes/installation/
 
 Node name: `@luka-cat-mimi/n8n-nodes-feishu-project`
 
-## Feature List
+## Features
 
-> **Feature Legend:**
-> - 🔄 **Return All**: Supports automatic pagination to fetch all data
-> - 📋 **Dynamic Form**: Supports dynamic loading of space/work item type/field dropdown options
->
-> **📊 Feature Stats:** 🔄 Return All: 10 operations | 📋 Dynamic Form: 42 operations
+1. **Batch Processing**: Improve automation call efficiency
+2. **Dynamic Forms**: Significantly reduce development barriers
+3. **Timeout Handling**: Prevent requests from hanging indefinitely
+4. **Automatic Pagination**: Automatically fetch all paginated data without manual handling
+
+## Feature List
 
 ### User Management (4)
 
-| Feature | Traits |
-|---------|--------|
-| Get user information | - |
-| Search users in tenant | - |
-| Create user group | - |
-| Update user group members | - |
+| Feature |
+|---------|
+| Get user information |
+| Search users in tenant |
+| Create user group |
+| Update user group members |
 
 ### Space Management (6)
 
-| Feature | Traits |
-|---------|--------|
-| Get space list | - |
-| Get space list details | - |
-| Get space details | - |
-| Get space business lines | - |
-| Get space team members | - |
-| Get space work item types list | - |
+| Feature |
+|---------|
+| Get space list |
+| Get space list details |
+| Get space details |
+| Get space business lines |
+| Get space team members |
+| Get space work item types list |
 
 ### Space Relations (4)
 
-| Feature | Traits |
-|---------|--------|
-| Get relation rules list | - |
-| Bind work item relation | 📋 |
-| Unbind work item relation | 📋 |
-| Get related work items list | 📋 |
+| Feature |
+|---------|
+| Get relation rules list |
+| Bind work item relation |
+| Unbind work item relation |
+| Get related work items list |
 
 ### Work Item Instance (16)
 
-| Feature | Traits |
-|---------|--------|
-| Create work item | 📋 |
-| Query work item details | 📋 |
-| Update work item | 📋 |
-| Delete work item | 📋 |
-| Batch update work items | 📋 |
-| Abort work item | 📋 |
-| Get work item metadata | 📋 |
-| Get work item operation records | 🔄 |
-| Get work item task result | - |
-| Batch query review information | - |
-| Query review conclusion | - |
-| Update review | - |
-| Create work hour record | 📋 |
-| Get work hour records list | 🔄 📋 |
-| Update work hour record | 📋 |
-| Delete work hour record | 📋 |
+| Feature |
+|---------|
+| Create work item |
+| Query work item details |
+| Update work item |
+| Delete work item |
+| Batch update work items |
+| Abort work item |
+| Get work item metadata |
+| Get work item operation records |
+| Get work item task result |
+| Batch query review information |
+| Query review conclusion |
+| Update review |
+| Create work hour record |
+| Get work hour records list |
+| Update work hour record |
+| Delete work hour record |
 
 ### Work Item Search (4)
 
-| Feature | Traits |
-|---------|--------|
-| Single space work item search | 🔄 📋 |
-| Complex condition search | 🔄 📋 |
-| Global search | 🔄 |
-| Related work item search | 🔄 📋 |
+| Feature |
+|---------|
+| Single space work item search |
+| Complex condition search |
+| Global search |
+| Related work item search |
 
 ### Work Item Configuration (9)
 
-| Feature | Traits |
-|---------|--------|
-| Get work item basic info | 📋 |
-| Update work item basic info | 📋 |
-| Create work item field | 📋 |
-| Get work item field | 📋 |
-| Update work item field | 📋 |
-| Create work item relation config | 📋 |
-| Get work item relation config | - |
-| Update work item relation config | 📋 |
-| Delete work item relation config | - |
+| Feature |
+|---------|
+| Get work item basic info |
+| Update work item basic info |
+| Create work item field |
+| Get work item field |
+| Update work item field |
+| Create work item relation config |
+| Get work item relation config |
+| Update work item relation config |
+| Delete work item relation config |
 
 ### Workflow & Nodes (5)
 
-| Feature | Traits |
-|---------|--------|
-| Query workflow node | 📋 |
-| Update workflow node | 📋 |
-| Operate workflow node | 📋 |
-| Change work item state | 📋 |
-| Get WBS view | 📋 |
+| Feature |
+|---------|
+| Query workflow node |
+| Update workflow node |
+| Operate workflow node |
+| Change work item state |
+| Get WBS view |
 
 ### Workflow Configuration (1)
 
-| Feature | Traits |
-|---------|--------|
-| Create workflow template | 📋 |
+| Feature |
+|---------|
+| Create workflow template |
 
 ### Role & Personnel Configuration (1)
 
-| Feature | Traits |
-|---------|--------|
-| Get workflow roles list | 📋 |
+| Feature |
+|---------|
+| Get workflow roles list |
 
 ### Subtasks (5)
 
-| Feature | Traits |
-|---------|--------|
-| Create subtask | 📋 |
-| Get subtask details | 📋 |
-| Update subtask | 📋 |
-| Operate subtask | 📋 |
-| Delete subtask | 📋 |
+| Feature |
+|---------|
+| Create subtask |
+| Get subtask details |
+| Update subtask |
+| Operate subtask |
+| Delete subtask |
 
 ### View Management (8)
 
-| Feature | Traits |
-|---------|--------|
-| Get view list | 🔄 📋 |
-| Create condition view | 📋 |
-| Update condition view | 📋 |
-| Create fixed view | 📋 |
-| Update fixed view | 📋 |
-| Delete view | - |
-| Get panoramic view | 🔄 |
-| Get view work items list | 🔄 |
+| Feature |
+|---------|
+| Get view list |
+| Create condition view |
+| Update condition view |
+| Create fixed view |
+| Update fixed view |
+| Delete view |
+| Get panoramic view |
+| Get view work items list |
 
 ### Comment Management (4)
 
-| Feature | Traits |
-|---------|--------|
-| Create comment | 📋 |
-| Query comments | 🔄 📋 |
-| Update comment | 📋 |
-| Delete comment | 📋 |
+| Feature |
+|---------|
+| Create comment |
+| Query comments |
+| Update comment |
+| Delete comment |
 
 ### Attachment Management (4)
 
-| Feature | Traits |
-|---------|--------|
-| File upload (general) | - |
-| Work item attachment upload | 📋 |
-| Attachment download | 📋 |
-| Attachment delete | 📋 |
+| Feature |
+|---------|
+| File upload (general) |
+| Work item attachment upload |
+| Attachment download |
+| Attachment delete |
 
 ### Groups (1)
 
-| Feature | Traits |
-|---------|--------|
-| Bot join chat | 📋 |
+| Feature |
+|---------|
+| Bot join chat |
 
 ### Metrics (1)
 
-| Feature | Traits |
-|---------|--------|
-| Get chart details | - |
+| Feature |
+|---------|
+| Get chart details |
 
 ## ✨ Special Features
 
@@ -206,9 +207,7 @@ Create "Feishu Project API" credentials in N8N with the following information:
 
 #### User ID
 
-1. Open browser developer tools
-2. Log in to Feishu Project
-3. Check the `X-USER-KEY` header information in network requests
+Developer's own user_key, double-click the personal avatar in the bottom left corner of the Feishu Project space to obtain it
 
 ## Notes
 
