@@ -23,17 +23,118 @@ const WorkItemInstanceSearchComplexOperate: ResourceOperations = {
 			},
 		},
 		{
-			displayName: '请求体参数',
-			name: 'body',
+			displayName: '筛选类型',
+			name: 'filter_type',
+			type: 'options',
+			default: 'simple',
+			required: true,
+			description: '选择筛选方式',
+			options: [
+				{ name: '简单筛选', value: 'simple' },
+				{ name: '自定义组合传参筛选（组合搜索使用）', value: 'custom' },
+			],
+		},
+		{
+			displayName: '筛选条件逻辑关系',
+			name: 'conjunction',
+			type: 'options',
+			default: 'AND',
+			required: true,
+			description: '用于指定筛选条件之间的逻辑关系',
+			displayOptions: {
+				show: {
+					filter_type: ['simple'],
+				},
+			},
+			options: [
+				{ name: 'AND（所有条件必须同时满足）', value: 'AND' },
+				{ name: 'OR（任一条件满足即可）', value: 'OR' },
+			],
+		},
+		{
+			displayName: '筛选条件',
+			name: 'search_params',
+			type: 'fixedCollection',
+			typeOptions: {
+				multipleValues: true,
+			},
+			placeholder: '添加筛选条件',
+			default: {},
+			description: '固定参数，遵循 SearchParam 结构规范。详见：<a href="https://project.feishu.cn/b/helpcenter/1p8d7djs/19pti4e2">搜索参数格式及常用示例</a>',
+			displayOptions: {
+				show: {
+					filter_type: ['simple'],
+				},
+			},
+			options: [
+				{
+					displayName: 'Params',
+					name: 'params',
+					values: [
+						{
+							displayName: 'Field Name or ID',
+							name: 'param_key',
+							type: 'options',
+							default: '',
+							required: true,
+							description: '字段 key，可通过获取字段信息接口查询。Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+							typeOptions: {
+								loadOptionsMethod: 'loadWorkItemFields',
+							},
+						},
+						{
+							displayName: 'Operator',
+							name: 'operator',
+							type: 'options',
+							default: 'HAS ANY OF',
+							required: true,
+							description: '用于指定搜索条件的操作符类型',
+							// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
+							options: [
+								{ name: '存在选项属于 (HAS ANY OF)', value: 'HAS ANY OF' },
+								{ name: '全部选项均不属于 (HAS NONE OF)', value: 'HAS NONE OF' },
+								{ name: '匹配 (~)', value: 'REG' },
+								{ name: '不匹配 (!~)', value: 'NREG' },
+								{ name: '等于 (=)', value: 'EQ' },
+								{ name: '不等于 (!=)', value: 'NE' },
+								{ name: '小于 (<)', value: 'LT' },
+								{ name: '大于 (>)', value: 'GT' },
+								{ name: '小于等于 (<=)', value: 'LTE' },
+								{ name: '大于等于 (>=)', value: 'GTE' },
+								{ name: '为空 (IS NULL)', value: 'IS NULL' },
+								{ name: '不为空 (IS NOT NULL)', value: 'IS NOT NULL' },
+								{ name: '包含 (CONTAINS)', value: 'CONTAINS' },
+								{ name: '不包含 (NOT CONTAINS)', value: 'NOT CONTAINS' },
+								{ name: '满足 (MEET)', value: 'MEET' },
+								{ name: '不满足 (NOT MEET)', value: 'NOT MEET' },
+							],
+						},
+						{
+							displayName: 'Value',
+							name: 'value',
+							type: 'string',
+							default: '',
+							description: '搜索字段值结构，该字段支持多种格式，具体取决于 param_key 和 operator 的组合。对于复杂类型（如数组、对象），请输入 JSON 格式字符串。',
+						},
+					],
+				},
+			],
+		},
+		{
+			displayName: '自定义筛选参数',
+			name: 'custom_search_group',
 			type: 'json',
 			default: JSON.stringify({
-				"search_group": {
-					"search_params": [],
-					"conjunction": "",
-					"search_groups": []
-				}
+				search_params: [],
+				conjunction: 'AND',
+				search_groups: [],
 			}, null, 2),
-			description: '请求体参数（不含分页参数、fields、expand），JSON格式。详见：http://project.feishu.cn/b/helpcenter/1p8d7djs/19pti4e2',
+			description: '自定义筛选组参数，遵循 SearchGroup 结构规范。详见：<a href="https://project.feishu.cn/b/helpcenter/1p8d7djs/19pti4e2">搜索参数格式及常用示例</a>',
+			displayOptions: {
+				show: {
+					filter_type: ['custom'],
+				},
+			},
 		},
 		{
 			displayName: '返回字段',
@@ -110,17 +211,77 @@ const WorkItemInstanceSearchComplexOperate: ResourceOperations = {
 			extractValue: true,
 		}) as string;
 		const work_item_type_key = this.getNodeParameter('work_item_type_key', index) as string;
-		const bodyParam = this.getNodeParameter('body', index) as string;
+		const filterType = this.getNodeParameter('filter_type', index, 'simple') as string;
 		const fields_raw = this.getNodeParameter('fields', index, '') as string | string[];
 		const returnAll = this.getNodeParameter('returnAll', index, false) as boolean;
 		const limit = this.getNodeParameter('limit', index, 50) as number;
 		const options = this.getNodeParameter('options', index, {}) as IDataObject;
-		const bodyBase: IDataObject = NodeUtils.parseJsonParameter(bodyParam, '请求体参数');
 
-		// 构建请求体：合并 bodyBase、fields、expand
+		let search_group: IDataObject;
+
+		if (filterType === 'custom') {
+			// 自定义组合传参筛选
+			const customSearchGroupRaw = this.getNodeParameter('custom_search_group', index, '{}') as string;
+			search_group = NodeUtils.parseJsonParameter(customSearchGroupRaw, '自定义筛选参数');
+		} else {
+			// 简单筛选
+			const conjunction = this.getNodeParameter('conjunction', index, 'AND') as string;
+			const searchParamsCollection = this.getNodeParameter('search_params', index, {}) as IDataObject;
+
+			// 构建 search_params 数组
+			const paramsArray = (searchParamsCollection.params as IDataObject[]) || [];
+			const search_params = paramsArray.map((item) => {
+				let fieldValue = item.value;
+
+				// 尝试解析 JSON 字符串（支持复杂类型如数组、对象）
+				if (typeof fieldValue === 'string' && fieldValue.trim()) {
+					try {
+						// 检查是否是 JSON 格式
+						if (
+							(fieldValue.trim().startsWith('[') && fieldValue.trim().endsWith(']')) ||
+							(fieldValue.trim().startsWith('{') && fieldValue.trim().endsWith('}'))
+						) {
+							fieldValue = JSON.parse(fieldValue);
+						}
+					} catch {
+						// 解析失败则保持原始字符串
+					}
+				}
+
+				// 将 operator 别名映射回 API 所需的符号
+				const operatorMapping: Record<string, string> = {
+					'REG': '~',
+					'NREG': '!~',
+					'EQ': '=',
+					'NE': '!=',
+					'LT': '<',
+					'GT': '>',
+					'LTE': '<=',
+					'GTE': '>=',
+				};
+				const operatorValue = operatorMapping[item.operator as string] || item.operator;
+
+				const param: IDataObject = {
+					param_key: item.param_key,
+					operator: operatorValue,
+					value: fieldValue,
+				};
+
+				return param;
+			});
+
+			// 构建 search_group 对象
+			search_group = {
+				search_params,
+				conjunction,
+				search_groups: [],
+			};
+		}
+
+		// 构建请求体：合并 search_group、fields、expand
 		const buildBody = (pageNum: number, pageSize: number): IDataObject => {
 			const body: IDataObject = {
-				...bodyBase,
+				search_group,
 				page_num: pageNum,
 				page_size: pageSize,
 			};
