@@ -79,7 +79,7 @@ const WorkItemInstanceSearchComplexOperate: ResourceOperations = {
 							required: true,
 							description: '字段 key，可通过获取字段信息接口查询。Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
 							typeOptions: {
-								loadOptionsMethod: 'loadWorkItemFields',
+								loadOptionsMethod: 'loadWorkItemFieldsAll',
 							},
 						},
 						{

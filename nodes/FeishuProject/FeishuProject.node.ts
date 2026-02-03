@@ -21,9 +21,11 @@ import {
 	getSpaceDetails,
 	getWorkItemTypes,
 	getWorkItemFieldMeta,
+	getWorkItemFieldsAll,
 	ISpaceDetail,
 	IWorkItemType,
 	IWorkItemFieldMeta,
+	IWorkItemField,
 } from './GenericFunctions';
 
 const resourceBuilder = ResourceFactory.build(__dirname);
@@ -537,6 +539,46 @@ export class FeishuProject implements INodeType {
 						.map((field: IWorkItemFieldMeta) => ({
 							name: field.field_name as string,
 							value: field.field_key as string,
+						}));
+				} catch {
+					return [];
+				}
+			},
+			/**
+			 * 加载所有字段列表选项（使用 field/all 接口）
+			 * 依赖：需要先选择空间（project_key）和工作项类型（work_item_type_key）
+			 */
+			async loadWorkItemFieldsAll(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				// 需要过滤掉的字段类型列表
+				const excludedFieldTypes = [
+					'multi_file', // 附件
+				];
+
+				try {
+					// project_key 是 resourceLocator 类型，需要 extractValue
+					const projectKey = this.getNodeParameter('project_key', undefined, {
+						extractValue: true,
+					}) as string;
+					// work_item_type_key 是普通 options 类型，不需要 extractValue
+					const workItemTypeKey = this.getNodeParameter('work_item_type_key') as string;
+
+					if (!projectKey || !workItemTypeKey) {
+						return [];
+					}
+
+					const fields = await getWorkItemFieldsAll.call(
+						this as unknown as IExecuteFunctions,
+						projectKey,
+						workItemTypeKey,
+					);
+
+					return fields
+						// 过滤掉不支持的字段类型
+						.filter((field: IWorkItemField) => !excludedFieldTypes.includes(field.field_type_key || ''))
+						.map((field: IWorkItemField) => ({
+							name: field.field_name as string,
+							value: field.field_key as string,
+							description: `类型: ${field.field_type_key || '未知'}${field.is_custom_field ? ' (自定义字段)' : ''}`,
 						}));
 				} catch {
 					return [];

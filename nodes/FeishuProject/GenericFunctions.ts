@@ -147,3 +147,48 @@ export async function getWorkItemFieldMeta(
 		url: `/open_api/${projectKey}/work_item/${workItemTypeKey}/meta`,
 	});
 }
+
+/**
+ * 字段信息接口（用于 field/all 接口返回）
+ */
+export interface IWorkItemField {
+	field_key: string;
+	field_name: string;
+	field_type_key?: string;
+	field_uuid?: string;
+	label?: string;
+	options?: unknown[];
+	compound_fields?: unknown[];
+	is_custom_field?: boolean;
+}
+
+/**
+ * 获取所有字段信息列表
+ * 调用 /open_api/{project_key}/field/all
+ * @param projectKey 空间ID
+ * @param workItemTypeKey 工作项类型key
+ */
+export async function getWorkItemFieldsAll(
+	this: IExecuteFunctions,
+	projectKey: string,
+	workItemTypeKey: string,
+): Promise<IWorkItemField[]> {
+	if (!projectKey || !workItemTypeKey) {
+		return [];
+	}
+
+	const response = await RequestUtils.request.call(this, {
+		method: 'POST',
+		url: `/open_api/${projectKey}/field/all`,
+		body: {
+			work_item_type_key: workItemTypeKey,
+		},
+	});
+
+	// 返回字段数组
+	if (Array.isArray(response)) {
+		return response as IWorkItemField[];
+	}
+
+	return [];
+}
