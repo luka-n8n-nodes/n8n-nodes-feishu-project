@@ -8,7 +8,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const ViewConditionUpdateOperate: ResourceOperations = {
 	name: '更新条件视图',
 	value: 'view:condition_update',
-	order: 7,
+	order: 70,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

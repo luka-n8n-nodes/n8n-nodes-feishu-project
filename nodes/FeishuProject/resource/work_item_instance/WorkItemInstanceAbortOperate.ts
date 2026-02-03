@@ -7,7 +7,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const WorkItemInstanceAbortOperate: ResourceOperations = {
 	name: '终止/恢复工作项',
 	value: 'work_item_instance:abort',
-	order: 50,
+	order: 80,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

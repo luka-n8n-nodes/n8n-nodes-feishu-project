@@ -7,7 +7,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const WorkItemInstanceDeleteOperate: ResourceOperations = {
 	name: '删除工作项',
 	value: 'work_item_instance:delete',
-	order: 40,
+	order: 70,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

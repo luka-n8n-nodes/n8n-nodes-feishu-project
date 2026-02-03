@@ -8,7 +8,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const ViewFixedUpdateOperate: ResourceOperations = {
 	name: '更新固定视图',
 	value: 'view:fixed_update',
-	order: 8,
+	order: 50,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

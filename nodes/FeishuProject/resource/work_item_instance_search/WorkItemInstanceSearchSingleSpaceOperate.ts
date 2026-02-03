@@ -7,7 +7,8 @@ import { DESCRIPTIONS } from '../../../help/description';
 const WorkItemInstanceSearchSingleSpaceOperate: ResourceOperations = {
 	name: '获取指定的工作项列表（单空间）',
 	value: 'work_item_instance_search:single_space',
-	order: 1,
+	description: '该接口用于在指定空间，搜索符合请求参数中传入条件的工作项实例。详见<a href="https://project.feishu.cn/b/helpcenter/2.0.0/1p8d7djs/1attl6vt">帮助文档</a>',
+	order: 10,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

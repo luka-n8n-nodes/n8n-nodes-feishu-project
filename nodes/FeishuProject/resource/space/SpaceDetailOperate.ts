@@ -6,7 +6,7 @@ import { commonOptions, ICommonOptionsValue } from '../../../help/utils/sharedOp
 const SpaceDetailOperate: ResourceOperations = {
 	name: '获取空间详情',
 	value: 'space:detail',
-	order: 2,
+	order: 20,
 	options: [
 		{
 			displayName: '项目Key列表',

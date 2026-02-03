@@ -6,7 +6,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const ViewPanoramicOperate: ResourceOperations = {
 	name: '获取视图下工作项列表（全景视图）',
 	value: 'view:panoramic',
-	order: 3,
+	order: 30,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

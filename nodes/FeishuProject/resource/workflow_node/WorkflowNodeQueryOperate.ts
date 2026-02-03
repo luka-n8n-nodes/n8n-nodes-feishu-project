@@ -8,7 +8,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const WorkflowNodeQueryOperate: ResourceOperations = {
 	name: '获取工作流详情',
 	value: 'workflow_node:query',
-	order: 1,
+	order: 10,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

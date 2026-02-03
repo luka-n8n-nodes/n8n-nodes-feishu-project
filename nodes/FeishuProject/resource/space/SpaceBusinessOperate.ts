@@ -7,7 +7,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const SpaceBusinessOperate: ResourceOperations = {
 	name: '获取空间下业务线详情',
 	value: 'space:business',
-	order: 6,
+	order: 60,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		commonOptions,

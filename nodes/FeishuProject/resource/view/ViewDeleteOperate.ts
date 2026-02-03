@@ -7,7 +7,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const ViewDeleteOperate: ResourceOperations = {
 	name: '删除视图',
 	value: 'view:delete',
-	order: 6,
+	order: 80,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

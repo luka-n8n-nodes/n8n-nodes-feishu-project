@@ -7,7 +7,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const WorkflowNodeWbsViewOperate: ResourceOperations = {
 	name: '获取工作流详情（WBS）',
 	value: 'workflow_node:wbs_view',
-	order: 2,
+	order: 20,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

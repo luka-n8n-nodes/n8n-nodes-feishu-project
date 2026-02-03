@@ -6,7 +6,8 @@ import { DESCRIPTIONS } from '../../../help/description';
 const WorkItemInstanceRelationSearchOperate: ResourceOperations = {
 	name: '获取指定的关联工作项列表（单空间）',
 	value: 'work_item_instance_search:relation',
-	order: 4,
+	description: '该接口用于获取与指定工作项实例存在工作项关联的工作项实例列表。更多详见<a href="https://project.feishu.cn/b/helpcenter/1p8d7djs/39dcbh1d">帮助文档</a>',
+	order: 40,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

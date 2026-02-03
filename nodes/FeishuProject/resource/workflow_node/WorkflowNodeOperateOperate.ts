@@ -8,7 +8,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const WorkflowNodeOperateOperate: ResourceOperations = {
 	name: '节点完成/回滚',
 	value: 'workflow_node:operate',
-	order: 5,
+	order: 50,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

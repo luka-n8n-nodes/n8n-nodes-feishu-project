@@ -7,7 +7,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const GroupBotJoinChatOperate: ResourceOperations = {
 	name: '拉机器人入群',
 	value: 'group:bot_join_chat',
-	order: 1,
+	order: 10,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

@@ -7,7 +7,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const WorkflowConfigTemplateDeleteOperate: ResourceOperations = {
 	name: '删除流程模板',
 	value: 'workflow_config:template_delete',
-	order: 5,
+	order: 50,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

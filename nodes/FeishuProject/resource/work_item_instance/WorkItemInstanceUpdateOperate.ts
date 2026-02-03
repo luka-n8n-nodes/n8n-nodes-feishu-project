@@ -7,7 +7,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const WorkItemInstanceUpdateOperate: ResourceOperations = {
 	name: '更新工作项',
 	value: 'work_item_instance:update',
-	order: 30,
+	order: 40,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

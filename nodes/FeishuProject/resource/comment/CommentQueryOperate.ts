@@ -7,7 +7,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const CommentQueryOperate: ResourceOperations = {
 	name: '查询评论',
 	value: 'comment:query',
-	order: 20,
+	order: 10,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

@@ -7,7 +7,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const UserGroupMembersUpdateOperate: ResourceOperations = {
 	name: '更新用户组成员',
 	value: 'user_group:members_update',
-	order: 2,
+	order: 20,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

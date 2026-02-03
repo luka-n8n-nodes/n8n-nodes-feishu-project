@@ -7,7 +7,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const UserGroupCreateOperate: ResourceOperations = {
 	name: '创建自定义用户组',
 	value: 'user_group:create',
-	order: 3,
+	order: 30,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

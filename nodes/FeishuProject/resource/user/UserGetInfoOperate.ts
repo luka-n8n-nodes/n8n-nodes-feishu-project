@@ -6,7 +6,7 @@ import { commonOptions, ICommonOptionsValue } from '../../../help/utils/sharedOp
 const UserGetInfoOperate: ResourceOperations = {
 	name: '查询用户信息',
 	value: 'user:query',
-	order: 4,
+	order: 40,
 	options: [
 		{
 			displayName: '用户Key列表',

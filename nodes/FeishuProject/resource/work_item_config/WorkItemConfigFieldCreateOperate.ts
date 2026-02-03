@@ -8,7 +8,8 @@ import { DESCRIPTIONS } from '../../../help/description';
 const WorkItemConfigFieldCreateOperate: ResourceOperations = {
 	name: '创建自定义字段',
 	value: 'work_item_config:field_create',
-	order: 8,
+	description: '该接口用于在指定工作项类型下创建一个新的“自定义字段”，对应的平台功能介绍详见<a href="https://project.feishu.cn/b/helpcenter/1ykiuvvj/17mi85qv">字段配置</a>',
+	order: 40,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

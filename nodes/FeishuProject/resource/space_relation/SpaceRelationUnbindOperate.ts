@@ -8,7 +8,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const SpaceRelationUnbindOperate: ResourceOperations = {
 	name: '解绑空间关联的关联工作项实例',
 	value: 'space_relation:unbind',
-	order: 4,
+	order: 40,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

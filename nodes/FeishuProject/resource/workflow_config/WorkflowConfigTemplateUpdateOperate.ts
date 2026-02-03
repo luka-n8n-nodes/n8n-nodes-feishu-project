@@ -8,7 +8,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const WorkflowConfigTemplateUpdateOperate: ResourceOperations = {
 	name: '更新流程模板',
 	value: 'workflow_config:template_update',
-	order: 4,
+	order: 40,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

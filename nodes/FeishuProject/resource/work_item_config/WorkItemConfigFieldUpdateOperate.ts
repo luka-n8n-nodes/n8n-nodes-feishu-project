@@ -8,7 +8,8 @@ import { DESCRIPTIONS } from '../../../help/description';
 const WorkItemConfigFieldUpdateOperate: ResourceOperations = {
 	name: '更新自定义字段',
 	value: 'work_item_config:field_update',
-	order: 9,
+	description: '该接口用于更新指定自定义字段的配置信息，对应的平台功能介绍详见<a href="https://project.feishu.cn/b/helpcenter/1ykiuvvj/17mi85qv">字段配置</a>',
+	order: 50,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

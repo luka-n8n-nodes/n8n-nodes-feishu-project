@@ -8,7 +8,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const WorkflowNodeStateChangeOperate: ResourceOperations = {
 	name: '状态流转',
 	value: 'workflow_node:state_change',
-	order: 4,
+	order: 40,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

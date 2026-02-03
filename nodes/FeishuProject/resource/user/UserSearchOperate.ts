@@ -7,7 +7,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const UserSearchOperate: ResourceOperations = {
 	name: '搜索租户内的用户列表',
 	value: 'user:search',
-	order: 1,
+	order: 10,
 	options: [
 		{
 			displayName: '搜索关键词',

@@ -6,7 +6,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const ViewListOperate: ResourceOperations = {
 	name: '获取视图列表及配置信息',
 	value: 'view:list',
-	order: 1,
+	order: 10,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

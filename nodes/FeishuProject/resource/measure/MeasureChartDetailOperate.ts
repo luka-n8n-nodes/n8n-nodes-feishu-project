@@ -7,7 +7,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const MeasureChartDetailOperate: ResourceOperations = {
 	name: '获取度量图表明细数据',
 	value: 'measure:chart_detail',
-	order: 1,
+	order: 10,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

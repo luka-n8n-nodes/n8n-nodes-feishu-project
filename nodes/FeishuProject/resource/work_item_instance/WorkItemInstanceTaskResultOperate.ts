@@ -6,7 +6,7 @@ import { commonOptions, ICommonOptionsValue } from '../../../help/utils/sharedOp
 const WorkItemInstanceTaskResultOperate: ResourceOperations = {
 	name: '获取批量更新处理进度',
 	value: 'work_item_instance:task_result',
-	order: 120,
+	order: 60,
 	options: [
 		{
 			displayName: '任务ID',

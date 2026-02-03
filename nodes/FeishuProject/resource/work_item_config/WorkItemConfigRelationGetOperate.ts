@@ -7,7 +7,8 @@ import { DESCRIPTIONS } from '../../../help/description';
 const WorkItemConfigRelationGetOperate: ResourceOperations = {
 	name: '获取工作项关系列表',
 	value: 'work_item_config:relation_get',
-	order: 3,
+	description: '该接口用于获取指定空间下的工作项关联关系列表，对应的平台功能介绍详见<a href="https://project.feishu.cn/b/helpcenter/1ykiuvvj/se3xal6e">关系管理</a>',
+	order: 60,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		commonOptions,

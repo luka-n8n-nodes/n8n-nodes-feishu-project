@@ -8,7 +8,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const ViewConditionCreateOperate: ResourceOperations = {
 	name: '创建条件视图',
 	value: 'view:condition_create',
-	order: 5,
+	order: 60,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

@@ -7,7 +7,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const SpaceWorkItemTypesOperate: ResourceOperations = {
 	name: '获取空间下工作项类型',
 	value: 'space:work_item_types',
-	order: 3,
+	order: 30,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		commonOptions,

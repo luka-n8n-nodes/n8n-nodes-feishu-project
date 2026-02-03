@@ -7,7 +7,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const SpaceTeamsOperate: ResourceOperations = {
 	name: '获取空间下团队成员',
 	value: 'space:teams',
-	order: 5,
+	order: 50,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		commonOptions,

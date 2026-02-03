@@ -8,7 +8,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const WorkflowNodeUpdateOperate: ResourceOperations = {
 	name: '更新节点/排期',
 	value: 'workflow_node:update',
-	order: 3,
+	order: 30,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

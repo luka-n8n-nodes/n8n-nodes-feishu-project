@@ -6,7 +6,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const WorkItemInstanceOpRecordOperate: ResourceOperations = {
 	name: '获取工作项操作记录',
 	value: 'work_item_instance:op_record',
-	order: 80,
+	order: 90,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

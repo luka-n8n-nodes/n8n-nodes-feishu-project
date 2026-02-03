@@ -7,7 +7,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const SpaceRelationRulesListOperate: ResourceOperations = {
 	name: '获取空间关联规则列表',
 	value: 'space_relation:rules_list',
-	order: 1,
+	order: 10,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

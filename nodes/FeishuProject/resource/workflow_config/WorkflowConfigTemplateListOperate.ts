@@ -7,7 +7,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const WorkflowConfigTemplateListOperate: ResourceOperations = {
 	name: '获取工作项下的流程模板列表',
 	value: 'workflow_config:template_list',
-	order: 2,
+	order: 10,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

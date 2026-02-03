@@ -76,7 +76,7 @@ const CommentUpdateOperate: ResourceOperations = {
 		// content 和 rich_text 不能同时为空
 		// 如果两者都提供，rich_text 优先
 		const hasRichText = richText && (
-			Array.isArray(richText) ? richText.length > 0 : 
+			Array.isArray(richText) ? richText.length > 0 :
 			(typeof richText === 'object' && richText !== null && Object.keys(richText).length > 0)
 		);
 

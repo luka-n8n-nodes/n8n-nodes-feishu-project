@@ -7,7 +7,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const RolePersonnelConfigFlowRolesOperate: ResourceOperations = {
 	name: '获取流程角色配置详情',
 	value: 'role_personnel_config:flow_roles',
-	order: 1,
+	order: 40,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

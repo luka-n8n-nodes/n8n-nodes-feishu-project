@@ -8,7 +8,8 @@ import { DESCRIPTIONS } from '../../../help/description';
 const WorkItemConfigRelationCreateOperate: ResourceOperations = {
 	name: '新增工作项关系',
 	value: 'work_item_config:relation_create',
-	order: 2,
+	description: '该接口用于在指定空间下新增工作项关联关系，对应的平台功能介绍详见<a href="https://project.feishu.cn/b/helpcenter/1ykiuvvj/se3xal6e">关系管理</a>',
+	order: 70,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

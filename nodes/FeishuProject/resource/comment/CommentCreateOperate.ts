@@ -8,7 +8,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const CommentCreateOperate: ResourceOperations = {
 	name: '添加评论',
 	value: 'comment:create',
-	order: 10,
+	order: 20,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

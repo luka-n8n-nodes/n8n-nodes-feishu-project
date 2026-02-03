@@ -8,7 +8,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const ViewFixedCreateOperate: ResourceOperations = {
 	name: '创建固定视图',
 	value: 'view:fixed_create',
-	order: 4,
+	order: 40,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

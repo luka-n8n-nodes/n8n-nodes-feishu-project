@@ -7,7 +7,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const WorkItemInstanceCreateOperate: ResourceOperations = {
 	name: '创建工作项',
 	value: 'work_item_instance:create',
-	order: 20,
+	order: 30,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

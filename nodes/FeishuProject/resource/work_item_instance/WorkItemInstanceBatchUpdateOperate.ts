@@ -8,7 +8,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const WorkItemInstanceBatchUpdateOperate: ResourceOperations = {
 	name: '批量更新工作项字段值',
 	value: 'work_item_instance:batch_update',
-	order: 60,
+	order: 50,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

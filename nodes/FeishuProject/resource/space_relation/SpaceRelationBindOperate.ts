@@ -8,7 +8,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const SpaceRelationBindOperate: ResourceOperations = {
 	name: '绑定空间关联的关联工作项实例',
 	value: 'space_relation:bind',
-	order: 3,
+	order: 30,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

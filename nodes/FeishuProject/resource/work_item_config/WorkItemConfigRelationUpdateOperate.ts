@@ -8,7 +8,8 @@ import { DESCRIPTIONS } from '../../../help/description';
 const WorkItemConfigRelationUpdateOperate: ResourceOperations = {
 	name: '更新工作项关系',
 	value: 'work_item_config:relation_update',
-	order: 4,
+	description: '该接口用于更新指定工作项关系的配置信息，对应的平台功能介绍详见<a href="https://project.feishu.cn/b/helpcenter/1ykiuvvj/se3xal6e">关系管理</a>',
+	order: 80,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

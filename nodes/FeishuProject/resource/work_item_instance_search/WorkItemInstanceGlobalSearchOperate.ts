@@ -6,7 +6,8 @@ import { DESCRIPTIONS } from '../../../help/description';
 const WorkItemInstanceGlobalSearchOperate: ResourceOperations = {
 	name: '获取指定的工作项列表（全局搜索）',
 	value: 'work_item_instance_search:global',
-	order: 5,
+	description: '该接口用于按照标题、描述、人员等多字段和工作项类型，跨空间搜索符合条件的工作项实例列表，对应的平台功能可参考<a href="https://project.feishu.cn/b/helpcenter/1ykiuvvj/4uteveck">全局搜索</a>',
+	order: 30,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

@@ -7,7 +7,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const WorkItemInstanceMetaOperate: ResourceOperations = {
 	name: '获取创建工作项元数据',
 	value: 'work_item_instance:meta',
-	order: 70,
+	order: 20,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

@@ -6,7 +6,7 @@ import { commonOptions, ICommonOptionsValue } from '../../../help/utils/sharedOp
 const SpaceListOperate: ResourceOperations = {
 	name: '获取空间列表',
 	value: 'space:list',
-	order: 1,
+	order: 10,
 	options: [
 		{
 			displayName: '排序方式',

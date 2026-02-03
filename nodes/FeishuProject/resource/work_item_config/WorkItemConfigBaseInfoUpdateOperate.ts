@@ -8,7 +8,8 @@ import { DESCRIPTIONS } from '../../../help/description';
 const WorkItemConfigBaseInfoUpdateOperate: ResourceOperations = {
 	name: '更新工作项基础信息配置',
 	value: 'work_item_config:base_info_update',
-	order: 7,
+	description: '该接口用于更新指定工作项类型的基础信息配置，对应的平台功能介绍详见<a href="https://project.feishu.cn/b/helpcenter/1ykiuvvj/2rv0xerq">基本信息配置</a>和<a href="https://project.feishu.cn/b/helpcenter/1ykiuvvj/3t60v7vo">基本信息页配置</a>',
+	order: 20,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

@@ -8,7 +8,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const SpaceRelationWorkItemListOperate: ResourceOperations = {
 	name: '获取空间关联下的关联工作项实例列表',
 	value: 'space_relation:work_item_list',
-	order: 2,
+	order: 20,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

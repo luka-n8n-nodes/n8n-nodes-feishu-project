@@ -7,7 +7,8 @@ import { DESCRIPTIONS } from '../../../help/description';
 const WorkItemConfigRelationDeleteOperate: ResourceOperations = {
 	name: '删除工作项关系',
 	value: 'work_item_config:relation_delete',
-	order: 5,
+	description: '该接口用于删除指定空间下的工作项关联关系，对应的平台功能介绍详见<a href="https://project.feishu.cn/b/helpcenter/1ykiuvvj/se3xal6e">关系管理</a>',
+	order: 90,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

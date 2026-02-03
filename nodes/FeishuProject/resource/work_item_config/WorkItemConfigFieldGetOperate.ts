@@ -7,7 +7,8 @@ import { DESCRIPTIONS } from '../../../help/description';
 const WorkItemConfigFieldGetOperate: ResourceOperations = {
 	name: '获取字段信息',
 	value: 'work_item_config:field_get',
-	order: 1,
+	description: '该接口用于获取指定空间或工作项类型下所有“字段”的基础信息，对应的平台功能介绍详见<a href="https://project.feishu.cn/b/helpcenter/1ykiuvvj/17mi85qv">字段配置</a>',
+	order: 30,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

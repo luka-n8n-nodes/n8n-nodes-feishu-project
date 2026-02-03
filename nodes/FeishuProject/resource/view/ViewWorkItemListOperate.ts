@@ -7,7 +7,7 @@ import { DESCRIPTIONS } from '../../../help/description';
 const ViewWorkItemListOperate: ResourceOperations = {
 	name: '获取视图下工作项列表',
 	value: 'view:work_item_list',
-	order: 2,
+	order: 20,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{

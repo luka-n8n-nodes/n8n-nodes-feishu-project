@@ -6,7 +6,7 @@ import { commonOptions, ICommonOptionsValue } from '../../../help/utils/sharedOp
 const SpaceListDetailOperate: ResourceOperations = {
 	name: '获取空间列表详情（自定义封装）',
 	value: 'space:list_detail',
-	order: 4,
+	order: 40,
 	options: [
 		{
 			displayName: '排序方式',
