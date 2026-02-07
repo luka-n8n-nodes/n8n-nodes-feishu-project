@@ -502,9 +502,9 @@ export class FeishuProject implements INodeType {
 						// 过滤掉不支持的字段类型
 						.filter((field: IWorkItemFieldMeta) => !excludedFieldTypes.includes(field.field_type_key || ''))
 						.map((field: IWorkItemFieldMeta) => ({
-							name: `${field.field_name}${field.is_required === 1 ? ' *' : ''}`,
-							value: field.field_key as string,
-							description: `类型: ${field.field_type_key || '未知'}${field.is_required === 1 ? ' (必填)' : field.is_required === 3 ? ' (条件必填)' : ''}`,
+						name: `${field.field_name}${field.is_required === 1 ? ' *' : ''}`,
+						value: field.field_key as string,
+						description: `类型: ${field.field_type_key || '未知'}, field_key: ${field.field_key}${field.is_required === 1 ? ' (必填)' : field.is_required === 3 ? ' (条件必填)' : ''}`,
 						}));
 				} catch {
 					return [];
@@ -576,9 +576,9 @@ export class FeishuProject implements INodeType {
 						// 过滤掉不支持的字段类型
 						.filter((field: IWorkItemField) => !excludedFieldTypes.includes(field.field_type_key || ''))
 						.map((field: IWorkItemField) => ({
-							name: field.field_name as string,
-							value: field.field_key as string,
-							description: `类型: ${field.field_type_key || '未知'}${field.is_custom_field ? ' (自定义字段)' : ''}`,
+						name: field.field_name as string,
+						value: field.field_key as string,
+						description: `类型: ${field.field_type_key || '未知'}, field_key: ${field.field_key}${field.is_custom_field ? ' (自定义字段)' : ''}`,
 						}));
 				} catch {
 					return [];
