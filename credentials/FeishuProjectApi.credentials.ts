@@ -69,6 +69,26 @@ export class FeishuProjectApi implements ICredentialType {
 			description: '用户的唯一ID，当选择使用插件身份凭证时，需要选择指定接口调用的用户 user_key，user_key 可双击用户头像获取。',
 		},
 		{
+			displayName: '鉴权模式 (x-auth-mode)',
+			name: 'authMode',
+			type: 'options',
+			options: [
+				{
+					name: '兼容模式',
+					value: 0,
+					description: '使用插件访问凭证鉴权时，可能获取到 X-User-Key 对应用户无权限访问的内容',
+				},
+				{
+					name: '强制鉴权模式',
+					value: 1,
+					description: '严格使用 X-User-Key 中的用户身份进行权限校验，不会返回该用户没有读取权限的资源',
+				},
+			],
+			default: 0,
+			required: false,
+			description: '值为 1 时开启强制校验，严格按 X-User-Key 用户身份进行权限校验；值为 0 或不填则使用兼容模式',
+		},
+		{
 			displayName: '插件Token',
 			name: 'pluginToken',
 			type: 'hidden',
@@ -86,6 +106,7 @@ export class FeishuProjectApi implements ICredentialType {
 			headers: {
 				'X-USER-KEY': '={{$credentials.userId}}',
 				'X-PLUGIN-TOKEN': '={{$credentials.pluginToken}}',
+				'x-auth-mode': '={{$credentials.authMode !== undefined ? $credentials.authMode : 0}}',
 			},
 		},
 	};
