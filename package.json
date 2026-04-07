@@ -26,17 +26,13 @@
     "type": "git",
     "url": "git+https://github.com/luka-n8n-nodes/n8n-nodes-feishu-project.git"
   },
-  "engines": {
-    "node": ">=20.15"
-  },
   "main": "index.js",
   "scripts": {
-    "build": "npx rimraf dist && tsc && gulp build:icons",
-    "dev": "tsc --watch",
+    "build": "n8n-node build",
+    "dev": "n8n-node dev",
     "format": "prettier nodes credentials --write",
-    "lint": "eslint nodes credentials package.json",
-    "lintfix": "eslint nodes credentials package.json --fix",
-    "prepublishOnly": "npm run build && npm run lint -c .eslintrc.prepublish.js nodes credentials package.json"
+    "lint": "n8n-node lint",
+    "lintfix": "n8n-node lint --fix"
   },
   "files": [
     "dist"
@@ -51,16 +47,15 @@
     ]
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
     "@n8n/node-cli": "*",
-    "eslint": "9.32.0",
-    "prettier": "3.6.2",
-    "release-it": "^19.0.4",
-    "typescript": "5.9.2",
-    "glob": "^10.4.5",
-    "gulp": "^5.0.0",
-    "require-glob": "^4.1.0",
-    "form-data": "^4.0.1"
+    "@types/node": "^20.19.37",
+    "eslint": "9.39.4",
+    "prettier": "3.8.1",
+    "typescript": "5.9.3"
+  },
+  "dependencies": {
+    "form-data": "^4.0.1",
+    "glob": "^10.4.5"
   },
   "peerDependencies": {
     "n8n-workflow": "*"

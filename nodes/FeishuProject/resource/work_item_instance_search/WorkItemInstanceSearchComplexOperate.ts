@@ -17,7 +17,7 @@ const WorkItemInstanceSearchComplexOperate: ResourceOperations = {
 			type: 'options',
 			default: '',
 			required: true,
-			description: '选择工作项类型。需要先选择空间。Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+			description: '选择工作项类型。需要先选择空间. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 			typeOptions: {
 				loadOptionsMethod: 'loadWorkItemTypes',
 			},
@@ -77,7 +77,7 @@ const WorkItemInstanceSearchComplexOperate: ResourceOperations = {
 							type: 'options',
 							default: '',
 							required: true,
-							description: '字段 key，可通过获取字段信息接口查询。Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+							description: '字段 key，可通过获取字段信息接口查询. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 							typeOptions: {
 								loadOptionsMethod: 'loadWorkItemFieldsAll',
 							},

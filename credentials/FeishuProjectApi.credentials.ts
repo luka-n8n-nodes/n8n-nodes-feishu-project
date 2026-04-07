@@ -12,8 +12,7 @@ export class FeishuProjectApi implements ICredentialType {
 	name = 'feishuProjectApi';
 	displayName = '飞书项目 API';
 	documentationUrl = 'https://project.feishu.cn/b/helpcenter/1p8d7djs/4bsmoql6';
-	// @ts-ignore
-	icon = 'file:icon.svg';
+	icon = 'file:../nodes/FeishuProject/icon.svg' as const;
 	properties: INodeProperties[] = [
 		{
 			displayName: '飞书项目host',

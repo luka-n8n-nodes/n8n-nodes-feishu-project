@@ -23,7 +23,7 @@ const AttachmentUploadOperate: ResourceOperations = {
 			type: 'options',
 			default: '',
 			required: true,
-			description: '选择工作项类型。需要先选择空间。Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+			description: '选择工作项类型。需要先选择空间. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 			typeOptions: {
 				loadOptionsMethod: 'loadWorkItemTypes',
 			},
@@ -49,7 +49,7 @@ const AttachmentUploadOperate: ResourceOperations = {
 			name: 'field_key',
 			type: 'options',
 			default: '',
-			description: '选择要上传附件的目标字段。需要先选择空间和工作项类型。Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+			description: '选择要上传附件的目标字段。需要先选择空间和工作项类型. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 			typeOptions: {
 				loadOptionsMethod: 'loadAttachmentFields',
 			},

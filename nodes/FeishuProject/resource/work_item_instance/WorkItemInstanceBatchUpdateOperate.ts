@@ -17,7 +17,7 @@ const WorkItemInstanceBatchUpdateOperate: ResourceOperations = {
 			type: 'options',
 			default: '',
 			required: true,
-			description: '选择工作项类型。需要先选择空间。Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+			description: '选择工作项类型。需要先选择空间. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 			typeOptions: {
 				loadOptionsMethod: 'loadWorkItemTypes',
 			},
@@ -74,7 +74,7 @@ const WorkItemInstanceBatchUpdateOperate: ResourceOperations = {
 					update_mode: ['REPLACE'],
 				},
 			},
-			description: '被替换的字段值（当 update_mode=REPLACE 时必填，其余情况下忽略），JSON格式。可参考<a href="https://open.feishu.cn/document/uAjLw4CM/ukTMukTMukTM/project-v2/work_item/field-value-format">字段与属性解析格式</a>',
+			description: '被替换的字段值（当 update_mode=REPLACE 时必填，其余情况下忽略），JSON格式。可参考<a href="https://project.feishu.cn/b/helpcenter/1p8d7djs/1tj6ggll">字段与属性解析格式</a>',
 		},
 		{
 			displayName: '目标字段值',
@@ -82,7 +82,7 @@ const WorkItemInstanceBatchUpdateOperate: ResourceOperations = {
 			type: 'json',
 			default: '',
 			required: true,
-			description: '操作类型的目标字段值，JSON格式。允许 field_value 为空，等价于删除。可参考<a href="https://open.feishu.cn/document/uAjLw4CM/ukTMukTMukTM/project-v2/work_item/field-value-format">字段与属性解析格式</a>',
+			description: '操作类型的目标字段值，JSON格式。允许 field_value 为空，等价于删除。可参考<a href="https://project.feishu.cn/b/helpcenter/1p8d7djs/1tj6ggll">字段与属性解析格式</a>',
 		},
 		commonOptions,
 	],

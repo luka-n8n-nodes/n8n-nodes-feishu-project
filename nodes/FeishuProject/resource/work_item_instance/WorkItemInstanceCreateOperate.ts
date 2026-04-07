@@ -16,7 +16,7 @@ const WorkItemInstanceCreateOperate: ResourceOperations = {
 			type: 'options',
 			default: '',
 			required: true,
-			description: '选择工作项类型。需要先选择空间。Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+			description: '选择工作项类型。需要先选择空间. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 			typeOptions: {
 				loadOptionsMethod: 'loadWorkItemTypes',
 			},
@@ -36,7 +36,7 @@ const WorkItemInstanceCreateOperate: ResourceOperations = {
 			},
 			placeholder: '添加字段',
 			default: {},
-			description: '字段值列表。可参考<a href="https://open.feishu.cn/document/uAjLw4CM/ukTMukTMukTM/project-v2/work_item/field-value-format">字段与属性解析格式</a>',
+			description: '字段值列表。可参考<a href="https://project.feishu.cn/b/helpcenter/1p8d7djs/1tj6ggll">字段与属性解析格式</a>',
 			options: [
 				{
 					displayName: '字段',
@@ -48,7 +48,7 @@ const WorkItemInstanceCreateOperate: ResourceOperations = {
 							type: 'options',
 							default: '',
 							required: true,
-							description: '选择要设置的字段。需要先选择空间和工作项类型。Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+							description: '选择要设置的字段。需要先选择空间和工作项类型. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 							typeOptions: {
 								loadOptionsMethod: 'loadWorkItemFields',
 							},
