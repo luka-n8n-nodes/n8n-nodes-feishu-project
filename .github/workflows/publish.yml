@@ -44,13 +44,9 @@ jobs:
       - name: 🔧 设置 Node.js 环境
         uses: actions/setup-node@v4
         with:
-          node-version: '22.x'
+          node-version: '24.x'
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
-
-      # OIDC Trusted Publishing 需要 npm 11.5.1+
-      - name: 📦 升级 npm 版本
-        run: npm install -g npm@latest
 
       - name: 📦 安装依赖
         run: npm ci
