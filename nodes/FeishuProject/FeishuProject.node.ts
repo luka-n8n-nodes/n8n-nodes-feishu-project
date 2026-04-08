@@ -9,6 +9,7 @@ import {
 	INodeTypeDescription,
 	NodeConnectionTypes,
 	NodeOperationError,
+	ResourceMapperFields,
 	sleep,
 } from 'n8n-workflow';
 import ResourceFactory from '../help/builder/ResourceFactory';
@@ -22,10 +23,12 @@ import {
 	getWorkItemTypes,
 	getWorkItemFieldMeta,
 	getWorkItemFieldsAll,
+	mapFeishuFieldTypeToN8n,
 	ISpaceDetail,
 	IWorkItemType,
 	IWorkItemFieldMeta,
 	IWorkItemField,
+	IFieldOption,
 } from './GenericFunctions';
 
 const resourceBuilder = ResourceFactory.build(__dirname);
@@ -582,6 +585,116 @@ export class FeishuProject implements INodeType {
 						}));
 				} catch {
 					return [];
+				}
+			},
+		},
+		resourceMapping: {
+			/**
+			 * 获取工作项字段映射定义（用于 resourceMapper 类型）
+			 * 依赖：需要先选择空间（project_key）和工作项类型（work_item_type_key）
+			 * 根据字段类型动态返回对应的输入控件类型（文本、数字、下拉选择等）
+			 */
+			async getWorkItemFieldMapping(
+				this: ILoadOptionsFunctions,
+			): Promise<ResourceMapperFields> {
+				const excludedFieldTypes = ['multi_file'];
+
+				try {
+					const projectKey = this.getNodeParameter('project_key', undefined, {
+						extractValue: true,
+					}) as string;
+					const workItemTypeKey = this.getNodeParameter('work_item_type_key') as string;
+
+					if (!projectKey || !workItemTypeKey) {
+						return { fields: [] };
+					}
+
+					const [fieldMeta, fieldDetails] = await Promise.all([
+						getWorkItemFieldMeta.call(
+							this as unknown as IExecuteFunctions,
+							projectKey,
+							workItemTypeKey,
+						),
+						getWorkItemFieldsAll.call(
+							this as unknown as IExecuteFunctions,
+							projectKey,
+							workItemTypeKey,
+						),
+					]);
+
+					const metaMap = new Map<string, IWorkItemFieldMeta>(
+						fieldMeta.map((f) => [f.field_key, f]),
+					);
+					const detailMap = new Map<string, IWorkItemField>(
+						fieldDetails.map((f) => [f.field_key, f]),
+					);
+
+					const allFieldKeys = new Set([
+						...fieldMeta.map((f) => f.field_key),
+						...fieldDetails.map((f) => f.field_key),
+					]);
+
+					const fields: ResourceMapperFields['fields'] = [];
+
+					for (const fieldKey of allFieldKeys) {
+						const meta = metaMap.get(fieldKey);
+						const detail = detailMap.get(fieldKey);
+
+						const fieldTypeKey = meta?.field_type_key || detail?.field_type_key || '';
+
+						if (excludedFieldTypes.includes(fieldTypeKey)) continue;
+
+						let type = mapFeishuFieldTypeToN8n(fieldTypeKey);
+
+						const hasOptions =
+							detail?.options && Array.isArray(detail.options) && detail.options.length > 0;
+						if (type === 'options' && !hasOptions) {
+							type = 'string';
+						}
+
+						const fieldName = meta?.field_name || detail?.field_name || fieldKey;
+						const isRequired = meta?.is_required === 1;
+
+						const field: ResourceMapperFields['fields'][number] = {
+							id: fieldKey,
+							displayName: `${fieldName}${isRequired ? ' *' : ''} (${fieldTypeKey || '未知'})`,
+							defaultMatch: false,
+							required: isRequired,
+							display: true,
+							type,
+						};
+
+						if (type === 'options' && hasOptions) {
+							field.options = (detail!.options as IFieldOption[])
+								.filter((opt) => opt.is_disabled !== 1)
+								.map((opt) => ({
+									name: opt.label || String(opt.value || ''),
+									value: JSON.stringify(opt),
+								}));
+						}
+
+						if (
+							meta?.default_value?.value !== undefined &&
+							meta?.default_value?.value !== null
+						) {
+							const defaultVal = meta.default_value.value;
+							if (
+								typeof defaultVal === 'string' ||
+								typeof defaultVal === 'number' ||
+								typeof defaultVal === 'boolean'
+							) {
+								field.defaultValue = defaultVal;
+							} else {
+								field.defaultValue = JSON.stringify(defaultVal);
+							}
+						}
+
+						fields.push(field);
+					}
+
+					return { fields };
+				} catch {
+					return { fields: [] };
 				}
 			},
 		},

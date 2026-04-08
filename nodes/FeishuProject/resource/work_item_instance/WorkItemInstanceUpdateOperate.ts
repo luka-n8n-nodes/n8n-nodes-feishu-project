@@ -50,7 +50,7 @@ const WorkItemInstanceUpdateOperate: ResourceOperations = {
 							type: 'options',
 							default: '',
 							required: true,
-							description: '选择要更新的字段。需要先选择空间和工作项类型. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+							description: '选择要更新的字段。需要先选择空间和工作项类型。字段定义可以通过调用 工作项配置 - 获取字段信息 查看字段定义列表. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 							typeOptions: {
 								loadOptionsMethod: 'loadWorkItemFields',
 							},
@@ -60,7 +60,15 @@ const WorkItemInstanceUpdateOperate: ResourceOperations = {
 							name: 'field_value',
 							type: 'string',
 							default: '',
-							description: '字段值，支持任意类型。对于复杂类型（如数组、对象），请输入 JSON 格式字符串。',
+							description:
+							'字段值，支持任意类型。对于复杂类型（如数组、对象），请输入 JSON 格式字符串。' +
+							'<br/><br/>传值示例：' +
+							'<br/><b>text</b>: 直接输入字符串即可' +
+							'<br/><b>multi_text</b>: [{"type":"paragraph","content":[{"type":"text","text":"文本","attrs":{"fontColor":"blue","italic":"true","underline":"true"}}]}]' +
+							'<br/><b>select</b>: {"label":"选项1","value":"8lheuaepp"}（value 为选项ID，必填；label 可选）' +
+							'<br/><b>multi_select</b>: [{"label":"选项1","value":"b0gzgge5o"},{"label":"选项4","value":"et15_j7yl"}]（value 为选项ID，必填；label 可选）' +
+							'<br/><b>user</b>: 735679528XXXXX（用户 user_key）' +
+							'<br/><b>multi_user</b>: ["735679528XXXXX","731189198XXXXX"]（用户 user_key 数组）',
 						},
 					],
 				},

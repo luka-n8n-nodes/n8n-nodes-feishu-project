@@ -151,6 +151,16 @@ export async function getWorkItemFieldMeta(
 }
 
 /**
+ * 字段选项接口（用于 select/multi_select 类型字段）
+ */
+export interface IFieldOption {
+	label: string;
+	value: string;
+	is_disabled?: number;
+	children?: IFieldOption[];
+}
+
+/**
  * 字段信息接口（用于 field/all 接口返回）
  */
 export interface IWorkItemField {
@@ -159,9 +169,35 @@ export interface IWorkItemField {
 	field_type_key?: string;
 	field_uuid?: string;
 	label?: string;
-	options?: unknown[];
+	options?: IFieldOption[];
 	compound_fields?: unknown[];
 	is_custom_field?: boolean;
+}
+
+/**
+ * 飞书字段类型 → n8n FieldType 映射
+ * 返回的类型对应 n8n ResourceMapperField.type
+ */
+export function mapFeishuFieldTypeToN8n(feishuType: string): 'string' | 'number' | 'dateTime' | 'boolean' | 'options' {
+	switch (feishuType) {
+		case 'number':
+		case 'float':
+		case 'integer':
+			return 'number';
+		case 'date':
+		case 'datetime':
+			return 'dateTime';
+		case 'boolean':
+		case 'checkbox':
+			return 'boolean';
+		case 'select':
+		case 'status':
+		case 'priority':
+		case 'bug_level':
+			return 'options';
+		default:
+			return 'string';
+	}
 }
 
 /**
