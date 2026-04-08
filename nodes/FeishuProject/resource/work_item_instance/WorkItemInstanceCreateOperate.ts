@@ -28,7 +28,7 @@ const WorkItemInstanceCreateOperate: ResourceOperations = {
 			default: '',
 		},
 		{
-			displayName: '字段值',
+			displayName: '字段动态赋值',
 			name: 'field_value_pairs',
 			type: 'fixedCollection',
 			typeOptions: {
@@ -36,7 +36,7 @@ const WorkItemInstanceCreateOperate: ResourceOperations = {
 			},
 			placeholder: '添加字段',
 			default: {},
-			description: '字段值列表。可参考<a href="https://project.feishu.cn/b/helpcenter/1p8d7djs/1tj6ggll">字段与属性解析格式</a>',
+			description: '字段列表。可参考<a href="https://project.feishu.cn/b/helpcenter/1p8d7djs/1tj6ggll">字段解析格式</a>',
 			options: [
 				{
 					displayName: '字段',

@@ -13,9 +13,9 @@ export const DESCRIPTIONS = {
 		displayName: '空间',
 		name: 'project_key',
 		type: 'resourceLocator',
-		default: { mode: 'id', value: '' },
+		default: { mode: 'list', value: '' },
 		required: true,
-		description: '选择飞书项目空间。可以从列表选择或手动输入 project_key。',
+		description: '选择空间。可以从列表选择或手动输入 project_key。',
 		modes: [
 			{
 				displayName: '从列表选择',
@@ -45,8 +45,8 @@ export const DESCRIPTIONS = {
 		displayName: '空间',
 	name: 'project_key',
 	type: 'resourceLocator',
-	default: { mode: 'id', value: '' },
-	description: '选择飞书项目空间。可以从列表选择或手动输入 project_key。',
+	default: { mode: 'list', value: '' },
+	description: '选择空间。可以从列表选择或手动输入 project_key。',
 		modes: [
 			{
 				displayName: '从列表选择',

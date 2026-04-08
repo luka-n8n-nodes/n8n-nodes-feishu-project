@@ -30,7 +30,7 @@ const WorkItemInstanceUpdateOperate: ResourceOperations = {
 			description: '工作项实例 ID，在工作项实例详情中，展开右上角 ··· > ID 获取。',
 		},
 		{
-			displayName: '更新字段',
+			displayName: '字段动态赋值',
 			name: 'update_fields',
 			type: 'fixedCollection',
 			typeOptions: {

@@ -17,6 +17,8 @@ export interface ISpaceDetail {
 export interface IWorkItemType {
 	type_key: string;
 	name: string;
+	is_disable?: number; // 2:未禁用, 1:已禁用
+	api_name?: string;
 }
 
 /**
