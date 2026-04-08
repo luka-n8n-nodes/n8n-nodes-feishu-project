@@ -72,12 +72,12 @@ const WorkItemInstanceSearchComplexOperate: ResourceOperations = {
 					name: 'params',
 					values: [
 						{
-							displayName: 'Field Name or ID',
-							name: 'param_key',
-							type: 'options',
-							default: '',
-							required: true,
-							description: '字段 key，可通过获取字段信息接口查询. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+						displayName: '字段名称 Name or ID',
+						name: 'param_key',
+						type: 'options',
+						default: '',
+						required: true,
+						description: '选择要设置的字段。需要先选择空间和工作项类型。字段定义可以通过调用 工作项配置 - 获取字段信息 查看字段定义列表. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 							typeOptions: {
 								loadOptionsMethod: 'loadWorkItemFieldsAll',
 							},
@@ -110,11 +110,16 @@ const WorkItemInstanceSearchComplexOperate: ResourceOperations = {
 							],
 						},
 						{
-							displayName: 'Value',
+							displayName: '字段值',
 							name: 'value',
 							type: 'string',
 							default: '',
-							description: '搜索字段值结构，该字段支持多种格式，具体取决于 param_key 和 operator 的组合。对于复杂类型（如数组、对象），请输入 JSON 格式字符串。',
+							description: '搜索字段值结构，该字段支持多种格式，具体取决于 param_key 和 operator 的组合。对于复杂类型（如数组、对象），请输入 JSON 格式字符串。详见：<a href="https://project.feishu.cn/b/helpcenter/2.0.0/1p8d7djs/1l8il0l6#53ba11c8">搜索参数格式及常用示例</a>',
+							displayOptions: {
+								hide: {
+									operator: ['IS NULL', 'IS NOT NULL', 'MEET', 'NOT MEET'],
+								},
+							},
 						},
 					],
 				},
@@ -137,11 +142,11 @@ const WorkItemInstanceSearchComplexOperate: ResourceOperations = {
 			},
 		},
 		{
-			displayName: '返回字段',
+			displayName: '需要返回的字段',
 			name: 'fields',
 			type: 'string',
 			default: '',
-			description: '工作项中的字段标识，非必填，默认返回全部。字段格式可查看<a href="https://project.feishu.cn/b/helpcenter/2.0.0/1p8d7djs/1tj6ggll">字段与属性解析格式</a>。支持两种模式（不可混用）：指定字段 - 仅返回列出的字段，如 ["aborted","role_owners"]；排除字段 - 以 - 开头排除该字段，如 ["-aborted","-role_owners"]',
+			description: '定义需要返回的字段，非必填，默认返回全部。字段格式可查看<a href="https://project.feishu.cn/b/helpcenter/2.0.0/1p8d7djs/1tj6ggll">字段与属性解析格式</a>。支持两种模式（不可混用）：指定字段 - 仅返回列出的字段，如 ["aborted","role_owners"]；排除字段 - 以 - 开头排除该字段，如 ["-aborted","-role_owners"]',
 		},
 		{
 			displayName: 'Return All',
@@ -261,11 +266,15 @@ const WorkItemInstanceSearchComplexOperate: ResourceOperations = {
 				};
 				const operatorValue = operatorMapping[item.operator as string] || item.operator;
 
+				const noValueOperators = ['IS NULL', 'IS NOT NULL', 'MEET', 'NOT MEET'];
 				const param: IDataObject = {
 					param_key: item.param_key,
 					operator: operatorValue,
-					value: fieldValue,
 				};
+
+				if (!noValueOperators.includes(item.operator as string)) {
+					param.value = fieldValue;
+				}
 
 				return param;
 			});
