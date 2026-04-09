@@ -19,6 +19,7 @@ export interface IWorkItemType {
 	name: string;
 	is_disable?: number; // 2:未禁用, 1:已禁用
 	api_name?: string;
+	enable_model_resource_lib?: boolean;
 }
 
 /**

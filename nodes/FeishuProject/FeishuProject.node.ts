@@ -412,10 +412,13 @@ export class FeishuProject implements INodeType {
 				);
 
 				return {
-					results: workItemTypes.map((type: IWorkItemType) => ({
-						name: type.name as string,
-						value: type.type_key as string,
-					})),
+					results: workItemTypes
+						.filter((type: IWorkItemType) => type.is_disable === 2)
+						.map((type: IWorkItemType) => ({
+							name: type.name as string,
+							value: type.type_key as string,
+							description: `工作项类型唯一key：${type.type_key}`,
+						})),
 				};
 			},
 		},
@@ -465,10 +468,13 @@ export class FeishuProject implements INodeType {
 						projectKey,
 					);
 
-					return workItemTypes.map((type: IWorkItemType) => ({
-						name: type.name as string,
-						value: type.type_key as string,
-					}));
+				return workItemTypes
+						.filter((type: IWorkItemType) => type.is_disable === 2)
+						.map((type: IWorkItemType) => ({
+							name: type.name as string,
+							value: type.type_key as string,
+							description: `工作项类型唯一key：${type.type_key}`,
+						}));
 				} catch {
 					return [];
 				}
