@@ -23,11 +23,13 @@ import {
 	getWorkItemTypes,
 	getWorkItemFieldMeta,
 	getWorkItemFieldsAll,
+	getWorkflowTemplates,
 	mapFeishuFieldTypeToN8n,
 	ISpaceDetail,
 	IWorkItemType,
 	IWorkItemFieldMeta,
 	IWorkItemField,
+	IWorkflowTemplate,
 	IFieldOption,
 } from './GenericFunctions';
 
@@ -520,6 +522,55 @@ export class FeishuProject implements INodeType {
 				}
 			},
 			/**
+			 * 加载可写入的工作项字段列表选项（用于创建/更新操作）
+			 * 在 loadWorkItemFields 基础上额外过滤掉接口不支持传值的系统字段
+			 */
+			async loadWorkItemFieldsForWrite(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				const excludedFieldTypes = [
+					'multi_file',
+				];
+				const excludedFieldKeys = [
+					'current_status_operator',
+					'start_time',
+					'finish_time',
+					'owner',
+					'archiving_date',
+					'issue_reporter',
+					'archiving_status',
+					'template',
+				];
+
+				try {
+					const projectKey = this.getNodeParameter('project_key', undefined, {
+						extractValue: true,
+					}) as string;
+					const workItemTypeKey = this.getNodeParameter('work_item_type_key') as string;
+
+					if (!projectKey || !workItemTypeKey) {
+						return [];
+					}
+
+					const fieldMeta = await getWorkItemFieldMeta.call(
+						this as unknown as IExecuteFunctions,
+						projectKey,
+						workItemTypeKey,
+					);
+
+					return fieldMeta
+						.filter((field: IWorkItemFieldMeta) =>
+							!excludedFieldTypes.includes(field.field_type_key || '') &&
+							!excludedFieldKeys.includes(field.field_key || ''),
+						)
+						.map((field: IWorkItemFieldMeta) => ({
+							name: `${field.field_name}${field.is_required === 1 ? ' *' : ''}`,
+							value: field.field_key as string,
+							description: `类型: ${field.field_type_key || '未知'}, field_key: ${field.field_key}${field.is_required === 1 ? ' (必填)' : field.is_required === 3 ? ' (条件必填)' : ''}`,
+						}));
+				} catch {
+					return [];
+				}
+			},
+			/**
 			 * 加载附件字段列表选项（仅返回 multi_file 类型）
 			 * 依赖：需要先选择空间（project_key）和工作项类型（work_item_type_key）
 			 */
@@ -589,6 +640,36 @@ export class FeishuProject implements INodeType {
 						value: field.field_key as string,
 						description: `类型: ${field.field_type_key || '未知'}, field_key: ${field.field_key}${field.is_custom_field ? ' (自定义字段)' : ''}`,
 						}));
+				} catch {
+					return [];
+				}
+			},
+			/**
+			 * 加载流程模板列表选项
+			 * 依赖：需要先选择空间（project_key）和工作项类型（work_item_type_key）
+			 */
+			async loadWorkflowTemplates(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				try {
+					const projectKey = this.getNodeParameter('project_key', undefined, {
+						extractValue: true,
+					}) as string;
+					const workItemTypeKey = this.getNodeParameter('work_item_type_key') as string;
+
+					if (!projectKey || !workItemTypeKey) {
+						return [];
+					}
+
+					const templates = await getWorkflowTemplates.call(
+						this as unknown as IExecuteFunctions,
+						projectKey,
+						workItemTypeKey,
+					);
+
+					return templates.map((tpl: IWorkflowTemplate) => ({
+						name: tpl.template_name,
+						value: tpl.template_id,
+						description: `template_id:${tpl.template_id},version:${tpl.version}`,
+					}));
 				} catch {
 					return [];
 				}

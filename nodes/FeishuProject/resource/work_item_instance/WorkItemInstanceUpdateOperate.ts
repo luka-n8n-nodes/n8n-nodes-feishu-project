@@ -51,9 +51,9 @@ const WorkItemInstanceUpdateOperate: ResourceOperations = {
 							default: '',
 							required: true,
 							description: '选择要更新的字段。需要先选择空间和工作项类型。字段定义可以通过调用 工作项配置 - 获取字段信息 查看字段定义列表. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
-							typeOptions: {
-								loadOptionsMethod: 'loadWorkItemFields',
-							},
+						typeOptions: {
+							loadOptionsMethod: 'loadWorkItemFieldsForWrite',
+						},
 						},
 						{
 							displayName: '字段值',

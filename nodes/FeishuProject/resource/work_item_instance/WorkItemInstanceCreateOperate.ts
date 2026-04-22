@@ -49,9 +49,9 @@ const WorkItemInstanceCreateOperate: ResourceOperations = {
 							default: '',
 							required: true,
 							description: '选择要设置的字段。需要先选择空间和工作项类型。字段定义可以通过调用 工作项配置 - 获取字段信息 查看字段定义列表. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
-							typeOptions: {
-								loadOptionsMethod: 'loadWorkItemFields',
-							},
+						typeOptions: {
+							loadOptionsMethod: 'loadWorkItemFieldsForWrite',
+						},
 						},
 						{
 							displayName: '字段值',
@@ -79,13 +79,16 @@ const WorkItemInstanceCreateOperate: ResourceOperations = {
 			placeholder: 'Add option',
 			default: {},
 			options: [
-				{
-					displayName: '流程模板ID',
-					name: 'template_id',
-					type: 'string',
-					default: '',
-					description: '工作项流程模板 ID，未传值时默认使用该工作项类型的第一个流程模板',
+			{
+				displayName: '流程模板 Name or ID',
+				name: 'template_id',
+				type: 'options',
+				default: '',
+				description: '工作项流程模板，未传值时默认使用该工作项类型的第一个流程模板。需要先选择空间和工作项类型. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+				typeOptions: {
+					loadOptionsMethod: 'loadWorkflowTemplates',
 				},
+			},
 				{
 					displayName: '必填模式',
 					name: 'required_mode',
@@ -117,7 +120,7 @@ const WorkItemInstanceCreateOperate: ResourceOperations = {
 		const options = this.getNodeParameter('options', index, {}) as IDataObject;
 
 		// 从 options 中获取可选参数
-		const template_id = (options.template_id as string) || '';
+		const template_id = options.template_id;
 		const required_mode = (options.required_mode as number) || 0;
 
 		// 获取 fixedCollection 中的字段数据
@@ -168,7 +171,7 @@ const WorkItemInstanceCreateOperate: ResourceOperations = {
 		if (name) {
 			body.name = name;
 		}
-		if (template_id && template_id.trim()) {
+		if (template_id !== undefined && template_id !== '' && template_id !== null) {
 			body.template_id = Number(template_id);
 		}
 		if (required_mode) {

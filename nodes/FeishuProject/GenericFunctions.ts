@@ -202,6 +202,42 @@ export function mapFeishuFieldTypeToN8n(feishuType: string): 'string' | 'number'
 }
 
 /**
+ * 流程模板接口
+ */
+export interface IWorkflowTemplate {
+	template_id: number;
+	template_name: string;
+	version: number;
+}
+
+/**
+ * 获取工作项下的流程模板列表
+ * 调用 /open_api/{project_key}/template_list/{work_item_type_key}
+ * @param projectKey 空间ID
+ * @param workItemTypeKey 工作项类型key
+ */
+export async function getWorkflowTemplates(
+	this: IExecuteFunctions,
+	projectKey: string,
+	workItemTypeKey: string,
+): Promise<IWorkflowTemplate[]> {
+	if (!projectKey || !workItemTypeKey) {
+		return [];
+	}
+
+	const response = await RequestUtils.request.call(this, {
+		method: 'GET',
+		url: `/open_api/${projectKey}/template_list/${workItemTypeKey}`,
+	});
+
+	if (Array.isArray(response)) {
+		return response as IWorkflowTemplate[];
+	}
+
+	return [];
+}
+
+/**
  * 获取所有字段信息列表
  * 调用 /open_api/{project_key}/field/all
  * @param projectKey 空间ID
