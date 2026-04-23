@@ -668,7 +668,7 @@ export class FeishuProject implements INodeType {
 					return templates.map((tpl: IWorkflowTemplate) => ({
 						name: tpl.template_name,
 						value: tpl.template_id,
-						description: `template_id:${tpl.template_id},version:${tpl.version}`,
+						description: `Template_id:${tpl.template_id}, version:${tpl.version}`,
 					}));
 				} catch {
 					return [];
