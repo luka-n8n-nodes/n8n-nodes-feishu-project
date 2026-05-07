@@ -19,7 +19,7 @@ npm install @luka-cat-mimi/n8n-nodes-feishu-project
 
 或在 n8n 社区节点中搜索安装，参考：[社区节点安装指南](https://docs.n8n.io/integrations/community-nodes/installation/)
 
-## 支持的功能（70 个操作）
+## 支持的功能（68 个操作）
 
 <details>
 <summary><b>工作项管理（16 个）</b>- 创建、更新、删除、批量操作...</summary>
@@ -45,11 +45,11 @@ npm install @luka-cat-mimi/n8n-nodes-feishu-project
 </details>
 
 <details>
-<summary><b>空间管理（7 个）</b>- 空间列表、详情、成员、全局搜索...</summary>
+<summary><b>空间管理（6 个）</b>- 空间列表、详情、成员...</summary>
 
 - 获取空间列表 / 获取空间列表详情 / 获取空间详情
-- 获取空间业务线 / 获取空间团队成员 / 获取空间工作项类型列表
-- 获取指定的工作项列表（全局搜索）
+- 获取空间业务线 / 获取空间工作项类型列表
+- 获取空间团队成员（支持分页、Return All、自动获取用户详情）
 </details>
 
 <details>
@@ -90,10 +90,9 @@ npm install @luka-cat-mimi/n8n-nodes-feishu-project
 </details>
 
 <details>
-<summary><b>用户管理（5 个）</b>- 用户信息、用户组、团队人员...</summary>
+<summary><b>用户管理（4 个）</b>- 用户信息、用户组...</summary>
 
 - 获取用户信息 / 搜索租户内的用户列表 / 创建用户组 / 更新用户组成员
-- 获取空间下团队人员（支持自动获取用户详情）
 </details>
 
 <details>

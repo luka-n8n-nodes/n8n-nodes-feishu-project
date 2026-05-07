@@ -1,7 +1,6 @@
 import { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import RequestUtils from '../../../help/utils/RequestUtils';
 import { ResourceOperations } from '../../../help/type/IResource';
-import { DESCRIPTIONS } from '../../../help/description';
 
 const WorkItemInstanceGlobalSearchOperate: ResourceOperations = {
 	name: '获取指定的工作项列表（全局搜索）',
@@ -9,12 +8,10 @@ const WorkItemInstanceGlobalSearchOperate: ResourceOperations = {
 	description: '该接口用于按照标题、描述、人员等多字段和工作项类型，跨空间搜索符合条件的工作项实例列表，对应的平台功能可参考<a href="https://project.feishu.cn/b/helpcenter/1ykiuvvj/4uteveck">全局搜索</a>',
 	order: 30,
 	options: [
-		DESCRIPTIONS.PROJECT_KEY,
 		{
-			displayName: 'Query Type',
+			displayName: '查询类型',
 			name: 'query_type',
 			type: 'options',
-			default: 'workitem',
 			required: true,
 			options: [
 				{
@@ -26,18 +23,26 @@ const WorkItemInstanceGlobalSearchOperate: ResourceOperations = {
 					value: 'view',
 				},
 			],
+			default: 'workitem',
 			description: '查询类型，可选值为工作项和视图',
 		},
 		{
-			displayName: 'Query',
+			displayName: '查询内容',
 			name: 'query',
 			type: 'string',
-			default: '',
 			required: true,
-			description: '查询内容',
+			default: '',
+			description: '按照标题、描述、人员等多字段搜索符合条件的工作项实例列表',
 		},
 		{
-			displayName: 'Query Sub Type',
+			displayName: '空间简称',
+			name: 'simple_names',
+			type: 'string',
+			default: '',
+			description: '安装插件的飞书项目空间（simple_name）列表，多个用逗号分隔，支持表达式传入数组。simple_name 一般在飞书项目空间 URL 中获取，例如空间 URL 为 "https://project.feishu.cn/doc/overview"，则 simple_name 为 "doc"。',
+		},
+		{
+			displayName: '工作项类型列表',
 			name: 'query_sub_type',
 			type: 'string',
 			default: '',
@@ -46,7 +51,17 @@ const WorkItemInstanceGlobalSearchOperate: ResourceOperations = {
 					query_type: ['workitem'],
 				},
 			},
-			description: '指定工作项类型列表，用于筛选查询结果。多个用逗号分隔。当 query_type 为 workitem 时生效。',
+			description: '指定工作项类型列表，用于筛选查询结果，多个用逗号分隔，支持表达式传入数组',
+		},
+		{
+			displayName: '空间 Names or IDs',
+			name: 'project_keys',
+			type: 'multiOptions',
+			default: [],
+			description: '指定搜索的空间范围，为空间 key 的列表。可多选或通过表达式传入数组。Choose from the list, or specify IDs using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+			typeOptions: {
+				loadOptionsMethod: 'loadSpaces',
+			},
 		},
 		{
 			displayName: 'Return All',
@@ -62,6 +77,7 @@ const WorkItemInstanceGlobalSearchOperate: ResourceOperations = {
 			default: 50,
 			typeOptions: {
 				minValue: 1,
+				maxValue: 200,
 			},
 			displayOptions: {
 				show: {
@@ -88,45 +104,56 @@ const WorkItemInstanceGlobalSearchOperate: ResourceOperations = {
 		},
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject | IDataObject[]> {
-		const project_key = this.getNodeParameter('project_key', index, '', {
-			extractValue: true,
-		}) as string;
-		const queryType = this.getNodeParameter('query_type', index) as string;
+		const query_type = this.getNodeParameter('query_type', index) as string;
 		const query = this.getNodeParameter('query', index) as string;
-		const querySubTypeStr = this.getNodeParameter('query_sub_type', index, '') as string;
+		const simpleNamesInput = this.getNodeParameter('simple_names', index, '') as string | string[];
+		const querySubTypeInput = this.getNodeParameter('query_sub_type', index, '') as string | string[];
+		const projectKeysInput = this.getNodeParameter('project_keys', index, []) as string | string[];
 		const returnAll = this.getNodeParameter('returnAll', index, false) as boolean;
 		const limit = this.getNodeParameter('limit', index, 50) as number;
 		const options = this.getNodeParameter('options', index, {}) as IDataObject;
 
-		// 构建基础请求体
-		const baseBody: IDataObject = {
-			query_type: queryType,
-			query: query,
+		// 解析列表参数（兼容逗号分隔字符串和表达式数组）
+		const parseList = (input: string | string[]): string[] => {
+			if (Array.isArray(input)) {
+				return input.map(s => String(s).trim()).filter(s => s);
+			}
+			if (!input || !String(input).trim()) return [];
+			return String(input).split(',').map(s => s.trim()).filter(s => s);
 		};
 
-		// 添加可选的 project_keys
-		if (project_key) {
-			baseBody.project_keys = [project_key];
+		const baseBody: IDataObject = {
+			query_type,
+			query,
+		};
+
+		const simpleNames = parseList(simpleNamesInput);
+		if (simpleNames.length > 0) {
+			baseBody.simple_names = simpleNames;
 		}
 
-		// 添加可选的 query_sub_type（当 query_type 为 workitem 时）
-		if (querySubTypeStr && queryType === 'workitem') {
-			baseBody.query_sub_type = querySubTypeStr.split(',').map(s => s.trim()).filter(s => s);
+		const querySubType = parseList(querySubTypeInput);
+		if (querySubType.length > 0) {
+			baseBody.query_sub_type = querySubType;
 		}
 
-		// 统一的请求函数
+		const projectKeys = parseList(projectKeysInput);
+		if (projectKeys.length > 0) {
+			baseBody.project_keys = projectKeys;
+		}
+
 		const fetchPage = async (pageNum: number, pageSize: number) => {
-			const body = {
+			const body: IDataObject = {
 				...baseBody,
-				page_num: pageNum,
 				page_size: pageSize,
+				page_num: pageNum,
 			};
 
 			const response = await RequestUtils.request.call(this, {
 				method: 'POST',
-				url: `/open_api/compositive_search`,
-				body: body,
-				timeout: options.timeout as number | undefined,
+				url: '/open_api/compositive_search',
+				body,
+				timeout: (options.timeout as number) || undefined,
 			}) as any;
 
 			return {
@@ -135,7 +162,6 @@ const WorkItemInstanceGlobalSearchOperate: ResourceOperations = {
 			};
 		};
 
-		// 处理分页逻辑
 		if (returnAll) {
 			let allResults: any[] = [];
 			let pageNum = 1;
@@ -145,7 +171,6 @@ const WorkItemInstanceGlobalSearchOperate: ResourceOperations = {
 				const { data, total } = await fetchPage(pageNum, pageSize);
 				allResults = allResults.concat(data);
 
-				// 检查是否还有更多数据
 				if (allResults.length >= total || data.length === 0 || pageNum >= 1000) {
 					if (pageNum >= 1000) {
 						this.logger.warn('已达到最大分页数限制(1000页)，停止获取');
@@ -158,12 +183,11 @@ const WorkItemInstanceGlobalSearchOperate: ResourceOperations = {
 
 			return allResults;
 		} else {
-			// 单次请求，返回限制数量的数据
 			const pageSize = Math.min(limit, 50);
 			const { data } = await fetchPage(1, pageSize);
 			return data.slice(0, limit);
 		}
-	}
+	},
 };
 
 export default WorkItemInstanceGlobalSearchOperate;
