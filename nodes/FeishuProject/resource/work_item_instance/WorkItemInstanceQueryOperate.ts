@@ -97,18 +97,19 @@ const WorkItemInstanceQueryOperate: ResourceOperations = {
 			extractValue: true,
 		}) as string;
 		const work_item_type_key = this.getNodeParameter('work_item_type_key', index) as string;
-		const work_item_ids_raw = this.getNodeParameter('work_item_ids', index) as string | string[];
+		const work_item_ids_raw = this.getNodeParameter('work_item_ids', index) as string | string[] | number | number[];
 		const fields_raw = this.getNodeParameter('fields', index, '') as string | string[];
 		const options = this.getNodeParameter('options', index, {}) as IDataObject;
 
 		const body: IDataObject = {};
 
-		// 兼容表达式数组和逗号分隔字符串
-		if (Array.isArray(work_item_ids_raw)) {
-			body.work_item_ids = work_item_ids_raw.map(id => String(id).trim()).filter(id => id);
-		} else {
-			body.work_item_ids = work_item_ids_raw.split(',').map(id => id.trim()).filter(id => id);
-		}
+		// 兼容表达式数组、逗号分隔字符串和单个数字（如 {{ $json.id }}）
+		const idsInput = Array.isArray(work_item_ids_raw) ? work_item_ids_raw : [work_item_ids_raw];
+		body.work_item_ids = idsInput
+			.filter(id => id !== undefined && id !== null && id !== '')
+			.flatMap(id => String(id).split(','))
+			.map(id => id.trim())
+			.filter(id => id);
 
 		// 处理 fields，兼容表达式数组和逗号分隔字符串
 		if (fields_raw) {
