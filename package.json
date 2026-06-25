@@ -43,7 +43,8 @@
       "dist/credentials/FeishuProjectApi.credentials.js"
     ],
     "nodes": [
-      "dist/nodes/FeishuProject/FeishuProject.node.js"
+      "dist/nodes/FeishuProject/FeishuProject.node.js",
+      "dist/nodes/FeishuProjectTrigger/FeishuProjectTrigger.node.js"
     ]
   },
   "devDependencies": {
