@@ -237,6 +237,14 @@ export class FeishuProjectTrigger implements INodeType {
 						description:
 							'仅放行指定工作项类型的回调，默认通配符 * 表示全部允许。支持逗号分隔、JSON 数组或表达式数组，例如 ["issue","story"]、issue,story 或 {{ ["issue","story"] }}。使用 data.work_item_type_key 进行匹配。',
 					},
+					{
+						displayName: '允许的工作项字段',
+						name: 'allowedWorkItemFields',
+						type: 'string',
+						default: '*',
+						description:
+							'仅放行指定工作项字段的回调，默认通配符 * 表示全部允许。仅在「修改字段 (1009)」事件下生效，其它事件不做该过滤。支持逗号分隔、JSON 数组或表达式数组，例如 ["name","role_owners","watchers","field_36d783","is_frozen"]、name,role_owners 或 {{ ["name","is_frozen"] }}。使用 data.field_info[].field_key 进行匹配，只要有任一变更字段命中即放行。',
+					},
 				],
 			},
 		],
@@ -292,6 +300,7 @@ export class FeishuProjectTrigger implements INodeType {
 			allowedSources?: string[];
 			allowedSpaces?: string[];
 			allowedWorkItemTypes?: string | string[];
+			allowedWorkItemFields?: string | string[];
 		};
 
 		// 1. 签名校验：将 plugin_id + request_time + token 按顺序拼接后 sha256，比对 signature
@@ -355,6 +364,26 @@ export class FeishuProjectTrigger implements INodeType {
 		) {
 			res.status(200).json({ code: 0, msg: 'ignored' });
 			return { noWebhookResponse: true };
+		}
+
+		// 6. 工作项字段过滤：仅在「修改字段 (1009)」事件下生效
+		//    未配置通配符时，仅放行 field_info 中存在命中字段的回调
+		if (String(eventType) === '1009') {
+			const allowedWorkItemFields = parseAllowedList(options.allowedWorkItemFields);
+			const fieldInfo = Array.isArray(data.field_info) ? (data.field_info as IDataObject[]) : [];
+			const changedFieldKeys = fieldInfo
+				.map((item) => (item && item.field_key !== undefined ? String(item.field_key) : ''))
+				.filter((key) => key !== '');
+
+			if (
+				allowedWorkItemFields.length > 0 &&
+				!allowedWorkItemFields.includes('*') &&
+				changedFieldKeys.length > 0 &&
+				!changedFieldKeys.some((key) => allowedWorkItemFields.includes(key))
+			) {
+				res.status(200).json({ code: 0, msg: 'ignored' });
+				return { noWebhookResponse: true };
+			}
 		}
 
 		return {
