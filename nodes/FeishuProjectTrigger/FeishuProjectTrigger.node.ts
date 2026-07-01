@@ -100,6 +100,8 @@ function parseAllowedList(value: unknown): string[] {
 	return list;
 }
 
+// Webhook 触发器无 execute()，不能作为 AI Tool 使用。
+// eslint-disable-next-line @n8n/community-nodes/node-usable-as-tool
 export class FeishuProjectTrigger implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: '飞书项目 Trigger',
