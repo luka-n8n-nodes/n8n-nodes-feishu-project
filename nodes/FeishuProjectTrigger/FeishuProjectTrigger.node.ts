@@ -102,7 +102,7 @@ function parseAllowedList(value: unknown): string[] {
 
 export class FeishuProjectTrigger implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: '监听事件 Trigger',
+		displayName: '飞书项目 Trigger',
 		name: 'feishuProjectTrigger',
 		icon: 'file:icon.svg',
 		group: ['trigger'],
@@ -110,9 +110,8 @@ export class FeishuProjectTrigger implements INodeType {
 		defaultVersion: 1,
 		description: '当飞书项目发生指定事件时，通过 Webhook 回调触发工作流',
 		defaults: {
-			name: '监听事件',
+			name: '飞书项目 Trigger',
 		},
-		usableAsTool: true,
 		inputs: [],
 		outputs: [NodeConnectionTypes.Main],
 		credentials: [
