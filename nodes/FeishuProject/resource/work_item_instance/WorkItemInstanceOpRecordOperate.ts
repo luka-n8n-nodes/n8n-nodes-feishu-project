@@ -1,5 +1,6 @@
 import { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import RequestUtils from '../../../help/utils/RequestUtils';
+import NodeUtils from '../../../help/utils/NodeUtils';
 import { ResourceOperations } from '../../../help/type/IResource';
 import { DESCRIPTIONS } from '../../../help/description';
 
@@ -116,7 +117,7 @@ const WorkItemInstanceOpRecordOperate: ResourceOperations = {
 		const project_key = this.getNodeParameter('project_key', index, '', {
 			extractValue: true,
 		}) as string;
-		const workItemIdsRaw = this.getNodeParameter('work_item_ids', index) as string | string[] | number[];
+		const workItemIdsRaw = this.getNodeParameter('work_item_ids', index) as string | string[] | number | number[];
 		const returnAll = this.getNodeParameter('returnAll', index, false) as boolean;
 		const limit = this.getNodeParameter('limit', index, 50) as number;
 		const options = this.getNodeParameter('options', index, {}) as IDataObject;
@@ -131,15 +132,7 @@ const WorkItemInstanceOpRecordOperate: ResourceOperations = {
 			return undefined;
 		};
 
-		// 解析工作项ID列表，转换为数字数组（兼容表达式数组和逗号分隔字符串）
-		let workItemIds: number[];
-		if (Array.isArray(workItemIdsRaw)) {
-			workItemIds = workItemIdsRaw
-				.map((id) => typeof id === 'number' ? id : parseInt(String(id).trim(), 10))
-				.filter((id) => !isNaN(id));
-		} else {
-			workItemIds = workItemIdsRaw.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
-		}
+		const workItemIds = NodeUtils.parseNumericIdList(workItemIdsRaw);
 
 		// 构建基础请求体
 		const baseBody: IDataObject = {

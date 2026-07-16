@@ -62,6 +62,27 @@ class NodeUtils {
 			throw new Error(`${parameterName}格式错误，请使用有效的JSON格式: ${error.message}`);
 		}
 	}
+
+	/**
+	 * 解析工作项 ID 列表，兼容表达式数字、数组和逗号分隔字符串
+	 */
+	static parseIdList(raw: string | string[] | number | number[] | undefined | null): string[] {
+		if (raw === undefined || raw === null || raw === '') {
+			return [];
+		}
+		const idsInput = Array.isArray(raw) ? raw : [raw];
+		return idsInput
+			.filter((id) => id !== undefined && id !== null && id !== '')
+			.flatMap((id) => String(id).split(','))
+			.map((id) => id.trim())
+			.filter((id) => id);
+	}
+
+	static parseNumericIdList(raw: string | string[] | number | number[] | undefined | null): number[] {
+		return this.parseIdList(raw)
+			.map((id) => parseInt(id, 10))
+			.filter((id) => !isNaN(id));
+	}
 }
 
 export default NodeUtils;

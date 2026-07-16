@@ -91,25 +91,13 @@ const WorkItemInstanceBatchUpdateOperate: ResourceOperations = {
 			extractValue: true,
 		}) as string;
 		const work_item_type_key = this.getNodeParameter('work_item_type_key', index) as string;
-		const work_item_ids_raw = this.getNodeParameter('work_item_ids', index) as string | string[] | number[];
+		const work_item_ids_raw = this.getNodeParameter('work_item_ids', index) as string | string[] | number | number[];
 		const update_mode = this.getNodeParameter('update_mode', index) as string;
 		const field_key = this.getNodeParameter('field_key', index) as string;
 		const after_field_value_param = this.getNodeParameter('after_field_value', index) as string;
 		const options = this.getNodeParameter('options', index, {}) as ICommonOptionsValue;
 
-		// 解析工作项ID列表，转换为数字数组（兼容表达式数组和逗号分隔字符串）
-		let work_item_ids: number[];
-		if (Array.isArray(work_item_ids_raw)) {
-			work_item_ids = work_item_ids_raw
-				.map((id) => typeof id === 'number' ? id : parseInt(String(id).trim(), 10))
-				.filter((id) => !isNaN(id));
-		} else {
-			work_item_ids = work_item_ids_raw
-				.split(',')
-				.map((id) => id.trim())
-				.filter((id) => id !== '')
-				.map((id) => parseInt(id, 10));
-		}
+		const work_item_ids = NodeUtils.parseNumericIdList(work_item_ids_raw);
 
 		// 解析目标字段值
 		const after_field_value = NodeUtils.parseJsonParameter(after_field_value_param, '目标字段值');

@@ -1,5 +1,6 @@
 import { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import RequestUtils from '../../../help/utils/RequestUtils';
+import NodeUtils from '../../../help/utils/NodeUtils';
 import { ResourceOperations } from '../../../help/type/IResource';
 import { DESCRIPTIONS } from '../../../help/description';
 
@@ -102,14 +103,7 @@ const WorkItemInstanceQueryOperate: ResourceOperations = {
 		const options = this.getNodeParameter('options', index, {}) as IDataObject;
 
 		const body: IDataObject = {};
-
-		// 兼容表达式数组、逗号分隔字符串和单个数字（如 {{ $json.id }}）
-		const idsInput = Array.isArray(work_item_ids_raw) ? work_item_ids_raw : [work_item_ids_raw];
-		body.work_item_ids = idsInput
-			.filter(id => id !== undefined && id !== null && id !== '')
-			.flatMap(id => String(id).split(','))
-			.map(id => id.trim())
-			.filter(id => id);
+		body.work_item_ids = NodeUtils.parseIdList(work_item_ids_raw);
 
 		// 处理 fields，兼容表达式数组和逗号分隔字符串
 		if (fields_raw) {

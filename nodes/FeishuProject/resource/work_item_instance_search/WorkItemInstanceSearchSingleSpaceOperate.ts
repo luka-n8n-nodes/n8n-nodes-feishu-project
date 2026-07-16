@@ -182,7 +182,7 @@ const WorkItemInstanceSearchSingleSpaceOperate: ResourceOperations = {
 		const limit = this.getNodeParameter('limit', index, 50) as number;
 		const workItemName = this.getNodeParameter('work_item_name', index, '') as string;
 		const userKeysStr = this.getNodeParameter('user_keys', index, '') as string;
-		const workItemIdsRaw = this.getNodeParameter('work_item_ids', index, '') as string | string[] | number[];
+		const workItemIdsRaw = this.getNodeParameter('work_item_ids', index, '') as string | string[] | number | number[];
 		const options = this.getNodeParameter('options', index, {}) as IDataObject;
 
 		// 构建请求体
@@ -203,15 +203,9 @@ const WorkItemInstanceSearchSingleSpaceOperate: ResourceOperations = {
 			baseBody.user_keys = userKeysStr.split(',').map(s => s.trim()).filter(s => s);
 		}
 
-		// 工作项 IDs（兼容表达式数组和逗号分隔字符串）
-		if (workItemIdsRaw && (Array.isArray(workItemIdsRaw) ? workItemIdsRaw.length > 0 : workItemIdsRaw !== '')) {
-			if (Array.isArray(workItemIdsRaw)) {
-				baseBody.work_item_ids = workItemIdsRaw
-					.map((id) => typeof id === 'number' ? id : parseInt(String(id).trim(), 10))
-					.filter((id) => !isNaN(id));
-			} else {
-				baseBody.work_item_ids = workItemIdsRaw.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
-			}
+		const workItemIds = NodeUtils.parseNumericIdList(workItemIdsRaw);
+		if (workItemIds.length > 0) {
+			baseBody.work_item_ids = workItemIds;
 		}
 
 		// 处理 Options 中的参数
