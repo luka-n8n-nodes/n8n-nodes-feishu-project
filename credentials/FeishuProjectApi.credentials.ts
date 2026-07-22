@@ -83,9 +83,9 @@ export class FeishuProjectApi implements ICredentialType {
 					description: '严格使用 X-User-Key 中的用户身份进行权限校验，不会返回该用户没有读取权限的资源',
 				},
 			],
-			default: 0,
+			default: 1,
 			required: false,
-			description: '值为 1 时开启强制校验，严格按 X-User-Key 用户身份进行权限校验；值为 0 或不填则使用兼容模式',
+			description: '默认为强制鉴权模式，严格按 X-User-Key 用户身份进行权限校验；值为 0 则使用兼容模式',
 		},
 		{
 			displayName: '插件Token',
@@ -105,7 +105,7 @@ export class FeishuProjectApi implements ICredentialType {
 			headers: {
 				'X-USER-KEY': '={{$credentials.userId}}',
 				'X-PLUGIN-TOKEN': '={{$credentials.pluginToken}}',
-				'x-auth-mode': '={{$credentials.authMode !== undefined ? $credentials.authMode : 0}}',
+				'x-auth-mode': '={{$credentials.authMode !== undefined ? $credentials.authMode : 1}}',
 			},
 		},
 	};

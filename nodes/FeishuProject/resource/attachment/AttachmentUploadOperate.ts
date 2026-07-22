@@ -15,7 +15,15 @@ const AttachmentUploadOperate: ResourceOperations = {
 	name: '添加附件',
 	value: 'attachment:upload',
 	order: 10,
+	description: '在指定工作项的一个附件类型字段中添加附件。',
 	options: [
+		{
+			displayName:
+				'该接口用于在指定工作项的一个附件类型字段中添加附件。<br><br><b>注意事项</b><br>1. 接口响应成功，页面查看无文件的情况，排查时需检查 form 表单-file 字段内容。当前情况下 file 为空，不拦截。<br>2. 遇到浏览器无法展示附件预览的情况，需检查上传时的文件 MimeType 设置，填写与文件类型匹配的 MimeType。如 jpeg 格式图片：image/jpeg，mp4 格式音频：audio/mp4，mp4 格式视频：video/mp4 等。<br>3. 工作项附件类型字段的附件数量限制为 50 个，超过 50 个时，新增附件会失败。',
+			name: 'uploadNotice',
+			type: 'notice',
+			default: '',
+		},
 		DESCRIPTIONS.PROJECT_KEY,
 		{
 			displayName: '工作项类型 Name or ID',
@@ -42,14 +50,16 @@ const AttachmentUploadOperate: ResourceOperations = {
 			type: 'string',
 			required: true,
 			default: 'data',
-			description: '包含要上传文件的二进制数据字段名，附件最大支持100MB',
+			description:
+				'包含要上传文件的二进制数据字段名，对应 form 表单 file 字段，附件最大支持 100MB。若接口成功但页面无文件，请检查该字段是否有内容；若无法预览附件，请确保二进制数据的 MimeType 与文件类型匹配（如 image/jpeg、audio/mp4、video/mp4）。',
 		},
 		{
 			displayName: '附件字段 Name or ID',
 			name: 'field_key',
 			type: 'options',
 			default: '',
-			description: '选择要上传附件的目标字段。需要先选择空间和工作项类型. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+			description:
+				'选择要上传附件的目标附件类型字段。需要先选择空间和工作项类型，单个字段最多 50 个附件。Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
 			typeOptions: {
 				loadOptionsMethod: 'loadAttachmentFields',
 			},

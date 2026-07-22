@@ -29,9 +29,13 @@ class RequestUtils {
 		}
 
 		// 飞书项目 API 正常响应判断
-		const isNormalCode = res?.err_code === 0;
-		if (!isNormalCode) {
-			throw new Error(`Feishu Project API Error: ${res?.err_code}, ${res?.err_msg}`);
+		// 兼容两种返回结构：
+		// - 标准项目接口：{ err_code, err_msg, data }
+		// - 文件 V2 接口（file/stream/.../upload_form 等）：{ code, message, data }
+		const code = res?.err_code ?? res?.code;
+		const message = res?.err_msg ?? res?.message;
+		if (code !== 0) {
+			throw new Error(`Feishu Project API Error: ${code}, ${message}`);
 		}
 
 		// 如果有分页信息，返回完整响应（包含 data 和 pagination）
@@ -94,7 +98,10 @@ class RequestUtils {
 				if (error.context && error.context.data) {
 					let errorData: any = {};
 
-					if (error.context.data.err_code !== undefined) {
+					if (
+						error.context.data.err_code !== undefined ||
+						error.context.data.code !== undefined
+					) {
 						// 已经是解析好的对象
 						errorData = error.context.data;
 					} else {
@@ -113,7 +120,10 @@ class RequestUtils {
 						}
 					}
 
-					const { err_code, err_msg, err } = errorData;
+					const { err } = errorData;
+					// 兼容两种返回结构：{ err_code, err_msg } 与 { code, message }
+					const err_code = errorData.err_code ?? errorData.code;
+					const err_msg = errorData.err_msg ?? errorData.message;
 
 					// Token 相关错误码：自动刷新 token 并重试
 					if (TOKEN_REFRESH_ERROR_CODES.includes(err_code)) {

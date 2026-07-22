@@ -7,35 +7,17 @@ import { DESCRIPTIONS } from '../../../help/description';
 const CommentDeleteOperate: ResourceOperations = {
 	name: '删除评论',
 	value: 'comment:delete',
+	description: '只有创建评论的人才能删除评论，且删除评论只能通过 API 操作。',
 	order: 40,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
-		{
-			displayName: '工作项类型 Name or ID',
-			name: 'work_item_type_key',
-			type: 'options',
-			default: '',
-			required: true,
-			description: '空间下工作项类型，需要先选择空间，详见：<a href="https://project.feishu.cn/b/helpcenter/2.0.0/1p8d7djs/3pjp854w">获取空间下工作项类型</a>. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
-			typeOptions: {
-				loadOptionsMethod: 'loadWorkItemTypes',
-			},
-		},
-		{
-			displayName: '工作项实例ID',
-			name: 'work_item_id',
-			type: 'string',
-			required: true,
-			default: '',
-			description: '工作项实例 ID，在工作项实例详情中，展开右上角 ··· > ID 获取。',
-		},
 		{
 			displayName: '评论ID',
 			name: 'comment_id',
 			type: 'string',
 			required: true,
 			default: '',
-			description: '评论 ID，可以通过查询评论接口获取',
+			description: '评论 ID，可通过查询评论或创建评论接口获取',
 		},
 		commonOptions,
 	],
@@ -43,17 +25,27 @@ const CommentDeleteOperate: ResourceOperations = {
 		const project_key = this.getNodeParameter('project_key', index, '', {
 			extractValue: true,
 		}) as string;
-		const work_item_type_key = this.getNodeParameter('work_item_type_key', index) as string;
-		const work_item_id = this.getNodeParameter('work_item_id', index) as string;
 		const comment_id = this.getNodeParameter('comment_id', index) as string;
 		const options = this.getNodeParameter('options', index, {}) as ICommonOptionsValue;
 
-		return RequestUtils.request.call(this, {
-			method: 'DELETE',
-			url: `/open_api/${project_key}/work_item/${work_item_type_key}/${work_item_id}/comment/${comment_id}`,
+		if (!comment_id) {
+			throw new Error('评论 ID 不能为空');
+		}
+
+		const response = await RequestUtils.request.call(this, {
+			method: 'POST',
+			url: '/open_api/comment/delete',
+			body: {
+				project_key,
+				comment_id,
+			},
 			timeout: options.timeout,
-		});
-	}
+		}) as IDataObject;
+
+		return {
+			comment_id: (response?.comment_id as string) || comment_id,
+		};
+	},
 };
 
 export default CommentDeleteOperate;

@@ -25,7 +25,7 @@ npm install @luka-cat-mimi/n8n-nodes-feishu-project
 
 | 节点 | 类型 | 说明 |
 |------|------|------|
-| **飞书项目** | 操作节点 | 调用飞书项目 API，支持工作项、空间、用户、工作流等 66 个操作 |
+| **飞书项目** | 操作节点 | 调用飞书项目 API，支持工作项、空间、用户、工作流等 68 个操作 |
 | **监听事件** | 触发器（Webhook） | 接收飞书项目回调事件，按条件触发工作流 |
 
 ## 触发器：监听事件
@@ -66,7 +66,7 @@ npm install @luka-cat-mimi/n8n-nodes-feishu-project
 | **允许飞书项目空间** | 动态多选，默认通配符。按 `data.project_key` 匹配 |
 | **允许的工作项类型** | 字符串，支持逗号分隔、JSON 数组或表达式数组（如 `["issue","story"]`、`issue,story`、`{{ ["issue","story"] }}`），默认通配符 `*`。按 `data.work_item_type_key` 匹配；事件不含该字段时视为通过 |
 
-## 支持的功能（66 个操作）
+## 支持的功能（68 个操作）
 
 <details>
 <summary><b>工作项管理（16 个）</b>- 创建、更新、删除、批量操作...</summary>
@@ -125,15 +125,26 @@ npm install @luka-cat-mimi/n8n-nodes-feishu-project
 </details>
 
 <details>
-<summary><b>评论管理（4 个）</b>- 评论 CRUD...</summary>
+<summary><b>评论管理（4 个）</b>- 评论 CRUD，支持多种对象与内容类型...</summary>
 
-- 创建评论 / 查询评论 / 更新评论 / 删除评论
+- 添加评论 / 查询评论 / 更新评论 / 删除评论
+- 支持评论对象类型：工作项（WORKITEM）、工作项字段（WORKITEMFIELD）、子评论（CHILDCOMMENT）
+- 支持内容类型：纯文本（TEXT）、富文本（RICHTEXT）、附件（FILE）
+- 查询评论支持分页方向、返回富文本 Markdown
 </details>
 
 <details>
-<summary><b>附件管理（4 个）</b>- 文件上传下载...</summary>
+<summary><b>附件管理（4 个）</b>- 工作项附件上传下载...</summary>
 
-- 文件上传（通用） / 工作项附件上传 / 附件下载 / 附件删除
+- 添加附件 / 下载附件 / 删除附件
+- 上传文件或富文本图片（通用上传，主要用于富文本中插入图片）
+</details>
+
+<details>
+<summary><b>文件管理（2 个）</b>- 评论附件上传下载...</summary>
+
+- 上传文件（小于 20MB，用于评论附件或富文本图片，上传后需绑定到业务）
+- 下载文件（通过 file_token 下载已绑定业务的文件，支持二进制输出）
 </details>
 
 <details>
@@ -168,8 +179,19 @@ npm install @luka-cat-mimi/n8n-nodes-feishu-project
 | 插件 ID | `MII_0000000000000000` |
 | 插件密钥 | `AB92E56666CT8D60704743BF69C92C16` |
 | 用户 ID | `7568516887894324252` |
+| 鉴权模式 | 默认开启强制鉴权（`1`），严格按用户 ID 校验权限；设为 `0` 可切换兼容模式 |
 
-### 3. 开始使用
+### 3. 评论附件工作流示例
+
+在评论中插入附件的典型流程：
+
+1. **文件 → 上传文件**：上传二进制文件，获取 `file_token`
+2. **评论 → 添加评论**：内容类型选「附件 (FILE)」，填入上一步的 `file_token`
+3. **文件 → 下载文件**：文件绑定到评论后，可用 `file_token` 下载
+
+> 上传的文件在未绑定到评论等业务前无法下载，超过 7 天未绑定会自动删除。
+
+### 4. 开始使用
 
 拖入节点 → 选择资源和操作 → 填写参数 → 执行！
 

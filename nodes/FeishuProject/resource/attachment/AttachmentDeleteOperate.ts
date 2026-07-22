@@ -6,7 +6,15 @@ import { DESCRIPTIONS } from '../../../help/description';
 const AttachmentDeleteOperate: ResourceOperations = {
 	name: '删除附件',
 	value: 'attachment:delete',
+	order: 40,
+	description: '在指定工作项的一个附件类型字段中删除附件。',
 	options: [
+		{
+			displayName: '该接口用于在指定工作项的一个附件类型字段中删除附件。',
+			name: 'deleteNotice',
+			type: 'notice',
+			default: '',
+		},
 		DESCRIPTIONS.PROJECT_KEY,
 		{
 			displayName: '工作项类型 Name or ID',

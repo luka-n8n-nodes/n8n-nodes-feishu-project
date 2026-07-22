@@ -32,46 +32,28 @@ const BINARY_CONTENT_TYPES = [
 	'application/x-7z-compressed',
 ];
 
-const AttachmentDownloadOperate: ResourceOperations = {
-	name: '下载附件',
-	value: 'attachment:download',
-	order: 30,
-	description: '下载一个工作项下的指定附件。',
+const FileStreamDownloadOperate: ResourceOperations = {
+	name: '下载文件',
+	value: 'file:download',
+	order: 20,
+	description: '下载一个附件。文件需已绑定到评论等业务中，未绑定业务点位前不能下载。',
 	options: [
 		{
-			displayName: '该接口用于下载一个工作项下的指定附件。',
+			displayName:
+				'该接口用于下载一个附件。上传完成的文件，需要再绑定到评论等业务中，在未绑定到业务点位之前不能下载，超过 7 天未绑定业务点位会自动删除文件。',
 			name: 'downloadNotice',
 			type: 'notice',
 			default: '',
 		},
 		DESCRIPTIONS.PROJECT_KEY,
 		{
-			displayName: '工作项类型 Name or ID',
-			name: 'work_item_type_key',
-			type: 'options',
-			default: '',
-			required: true,
-			description: '空间下工作项类型，需要先选择空间，详见：<a href="https://project.feishu.cn/b/helpcenter/2.0.0/1p8d7djs/3pjp854w">获取空间下工作项类型</a>. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
-			typeOptions: {
-				loadOptionsMethod: 'loadWorkItemTypes',
-			},
-		},
-		{
-			displayName: '工作项实例ID',
-			name: 'work_item_id',
+			displayName: '文件 Token',
+			name: 'file_token',
+			// eslint-disable-next-line n8n-nodes-base/node-param-type-options-password-missing
 			type: 'string',
 			required: true,
 			default: '',
-			description: '工作项实例 ID，在工作项实例详情中，展开右上角 ··· > ID 获取。',
-		},
-		{
-			displayName: '附件ID',
-			name: 'uuid',
-			type: 'string',
-			required: true,
-			default: '',
-			description:
-				'附件 ID，当前最大支持100MB。可从工作项详情接口下的富文本(multi_texts)或附件字段(multi_file类型)中获取',
+			description: '文件 token，通过上传文件接口获取',
 		},
 		{
 			displayName: 'Put Output File in Field',
@@ -111,9 +93,7 @@ const AttachmentDownloadOperate: ResourceOperations = {
 		const project_key = this.getNodeParameter('project_key', index, '', {
 			extractValue: true,
 		}) as string;
-		const work_item_type_key = this.getNodeParameter('work_item_type_key', index) as string;
-		const work_item_id = this.getNodeParameter('work_item_id', index) as string;
-		const uuid = this.getNodeParameter('uuid', index) as string;
+		const file_token = this.getNodeParameter('file_token', index) as string;
 		const outputPropertyName = this.getNodeParameter(
 			'outputPropertyName',
 			index,
@@ -125,8 +105,7 @@ const AttachmentDownloadOperate: ResourceOperations = {
 			timeout?: number;
 		};
 
-		const body: IDataObject = { uuid };
-		const url = `/open_api/${project_key}/work_item/${work_item_type_key}/${work_item_id}/file/download`;
+		const url = `/open_api/${project_key}/file/stream/download/${file_token}`;
 
 		// 获取凭证
 		const credentialName = 'feishuProjectApi';
@@ -135,10 +114,9 @@ const AttachmentDownloadOperate: ResourceOperations = {
 
 		// 构建请求选项
 		const requestOptions: any = {
-			method: 'POST',
+			method: 'GET',
 			baseURL,
 			url,
-			body,
 			encoding: null,
 			json: false,
 			useStream: true,
@@ -171,7 +149,8 @@ const AttachmentDownloadOperate: ResourceOperations = {
 		// 处理文件响应
 		if (isFileResponse && response.body) {
 			// 确定 MIME 类型
-			const mimeType = options.mimeType?.trim() || responseContentType.split(';')[0].trim() || undefined;
+			const mimeType =
+				options.mimeType?.trim() || responseContentType.split(';')[0].trim() || undefined;
 
 			// 确定文件名
 			let fileName = options.fileName?.trim();
@@ -180,10 +159,8 @@ const AttachmentDownloadOperate: ResourceOperations = {
 					response.headers?.['content-disposition'] ||
 					response.headers?.['Content-Disposition'] ||
 					'';
-				const fileNameMatch = contentDisposition.match(
-					/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/,
-				);
-				fileName = fileNameMatch?.[1]?.replace(/['"]/g, '') || uuid;
+				const fileNameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+				fileName = fileNameMatch?.[1]?.replace(/['"]/g, '') || file_token;
 			}
 
 			// 准备二进制数据
@@ -216,13 +193,16 @@ const AttachmentDownloadOperate: ResourceOperations = {
 		}
 
 		// 检查是否是错误响应
-		if (responseData?.err_code !== 0) {
+		// 该接口失败时返回 { code, message, data }，兼容标准接口的 err_code / err_msg
+		const respCode = responseData?.err_code ?? responseData?.code;
+		const respMsg = responseData?.err_msg ?? responseData?.message;
+		if (respCode !== 0) {
 			const description = responseData?.err?.msg
 				? `${responseData.err.msg}${responseData.err.log_id ? ` (log_id: ${responseData.err.log_id})` : ''}`
-				: `错误码: ${responseData?.err_code}，请参考排查文档: ${ERROR_HELP_URL}`;
+				: `错误码: ${respCode}，请参考排查文档: ${ERROR_HELP_URL}`;
 
 			throw new NodeApiError(this.getNode(), responseData, {
-				message: `飞书项目 API 错误: ${responseData?.err_code}, ${responseData?.err_msg}`,
+				message: `飞书项目 API 错误: ${respCode}, ${respMsg}`,
 				description,
 			});
 		}
@@ -232,4 +212,4 @@ const AttachmentDownloadOperate: ResourceOperations = {
 	},
 };
 
-export default AttachmentDownloadOperate;
+export default FileStreamDownloadOperate;

@@ -11,10 +11,59 @@ import FormData from 'form-data';
  */
 const MAX_FILE_SIZE = 100 * 1024 * 1024;
 
-const FileUploadOperate: ResourceOperations = {
-	name: '文件上传',
+const parseUploadResponse = (response: unknown): string | undefined => {
+	// processResponse 可能直接返回 data 字符串（URL）
+	if (typeof response === 'string') {
+		const trimmed = response.trim();
+		if (!trimmed) {
+			return undefined;
+		}
+
+		if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+			try {
+				return parseUploadResponse(JSON.parse(trimmed));
+			} catch {
+				return trimmed.startsWith('http') ? trimmed : undefined;
+			}
+		}
+
+		return trimmed;
+	}
+
+	// multipart 上传时，n8n 有时返回 Buffer，processResponse 会原样透传
+	if (Buffer.isBuffer(response) || response instanceof Uint8Array) {
+		try {
+			return parseUploadResponse(JSON.parse(Buffer.from(response).toString('utf-8')));
+		} catch {
+			return undefined;
+		}
+	}
+
+	// data 为数组：["https://..."]，取第一个有效字符串
+	if (Array.isArray(response)) {
+		for (const item of response) {
+			const url = parseUploadResponse(item);
+			if (url) {
+				return url;
+			}
+		}
+		return undefined;
+	}
+
+	// 完整响应对象：{ data: "https://..." } 或 { data: ["https://..."] }
+	if (response && typeof response === 'object') {
+		return parseUploadResponse((response as IDataObject).data);
+	}
+
+	return undefined;
+};
+
+const RichTextFileUploadOperate: ResourceOperations = {
+	name: '上传文件或富文本图片',
 	value: 'file:upload',
-	order: 10,
+	order: 20,
+	description:
+		'通用文件上传接口，主要用于富文本中上传图片。',
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
 		{
@@ -24,7 +73,7 @@ const FileUploadOperate: ResourceOperations = {
 			required: true,
 			default: 'data',
 			description:
-				'包含要上传文件的二进制数据字段名，附件-目前最大支持100MB , 详见：https://project.feishu.cn/b/helpcenter/2.0.0/1p8d7djs/g33r3mo4',
+				'包含要上传文件的二进制数据字段名。form 表单字段名为 file，目前最大支持 100MB。详见：<a href="https://project.feishu.cn/b/helpcenter/2.0.0/1p8d7djs/g33r3mo4">文件上传</a>',
 		},
 		commonOptions,
 	],
@@ -35,7 +84,6 @@ const FileUploadOperate: ResourceOperations = {
 		const binaryPropertyName = this.getNodeParameter('binaryPropertyName', index) as string;
 		const options = this.getNodeParameter('options', index, {}) as ICommonOptionsValue;
 
-		// 使用 NodeUtils.buildUploadFileData 构建上传数据
 		const file = await NodeUtils.buildUploadFileData.call(this, binaryPropertyName, index);
 
 		if (!file || !file.value) {
@@ -45,7 +93,6 @@ const FileUploadOperate: ResourceOperations = {
 			);
 		}
 
-		// 检查文件大小
 		const fileSize = file.value.length;
 		if (fileSize > MAX_FILE_SIZE) {
 			throw new NodeOperationError(
@@ -54,20 +101,27 @@ const FileUploadOperate: ResourceOperations = {
 			);
 		}
 
-		// 构造 FormData
 		const formData = new FormData();
 		formData.append('file', file.value, {
 			filename: file.options.filename || 'file',
 			contentType: file.options.contentType || 'application/octet-stream',
 		});
 
-		return RequestUtils.request.call(this, {
+		const response = await RequestUtils.request.call(this, {
 			method: 'POST',
 			url: `/open_api/${project_key}/file/upload`,
 			body: formData,
+			headers: formData.getHeaders(),
 			timeout: options.timeout,
 		} as IHttpRequestOptions);
+
+		const fileUrl = parseUploadResponse(response);
+		if (!fileUrl) {
+			throw new NodeOperationError(this.getNode(), '上传成功但未返回资源路径');
+		}
+
+		return { fileUrl };
 	},
 };
 
-export default FileUploadOperate;
+export default RichTextFileUploadOperate;

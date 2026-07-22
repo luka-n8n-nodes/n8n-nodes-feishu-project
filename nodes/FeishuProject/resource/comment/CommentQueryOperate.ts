@@ -1,7 +1,7 @@
 import { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import RequestUtils from '../../../help/utils/RequestUtils';
 import { ResourceOperations } from '../../../help/type/IResource';
-import { timeoutOnlyOptions, ICommonOptionsValue } from '../../../help/utils/sharedOptions';
+import { paginationOptions, timeoutOption } from '../../../help/utils/sharedOptions';
 import { DESCRIPTIONS } from '../../../help/description';
 
 const CommentQueryOperate: ResourceOperations = {
@@ -10,6 +10,31 @@ const CommentQueryOperate: ResourceOperations = {
 	order: 10,
 	options: [
 		DESCRIPTIONS.PROJECT_KEY,
+		{
+			displayName: '评论对象类型',
+			name: 'object_type',
+			type: 'options',
+			default: 'WORKITEM',
+			required: true,
+			description: '评论对象类型。WORKITEM 查询工作项评论；WORKITEMFIELD 查询工作项字段评论；CHILDCOMMENT 查询子评论',
+			options: [
+				{
+					name: '工作项 (WORKITEM)',
+					value: 'WORKITEM',
+					description: '需要 work_item_type_key 和 work_item_id',
+				},
+				{
+					name: '工作项字段 (WORKITEMFIELD)',
+					value: 'WORKITEMFIELD',
+					description: '需要 work_item_type_key、work_item_id 和 field_key',
+				},
+				{
+					name: '子评论 (CHILDCOMMENT)',
+					value: 'CHILDCOMMENT',
+					description: '需要 parent_id',
+				},
+			],
+		},
 		{
 			displayName: '工作项类型 Name or ID',
 			name: 'work_item_type_key',
@@ -20,6 +45,11 @@ const CommentQueryOperate: ResourceOperations = {
 			typeOptions: {
 				loadOptionsMethod: 'loadWorkItemTypes',
 			},
+			displayOptions: {
+				show: {
+					object_type: ['WORKITEM', 'WORKITEMFIELD'],
+				},
+			},
 		},
 		{
 			displayName: '工作项实例ID',
@@ -28,90 +58,180 @@ const CommentQueryOperate: ResourceOperations = {
 			required: true,
 			default: '',
 			description: '工作项实例 ID，在工作项实例详情中，展开右上角 ··· > ID 获取。',
+			displayOptions: {
+				show: {
+					object_type: ['WORKITEM', 'WORKITEMFIELD'],
+				},
+			},
 		},
 		{
-			displayName: 'Return All',
-			name: 'returnAll',
-			type: 'boolean',
-			default: false,
-			description: 'Whether to return all results or only up to a given limit',
-		},
-		{
-			displayName: 'Limit',
-			name: 'limit',
-			type: 'number',
-			default: 50,
+			displayName: '字段 Key Name or ID',
+			name: 'field_key',
+			type: 'options',
+			default: '',
+			required: true,
+			description: '字段 key，需与工作项类型中的字段保持一致。Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
 			typeOptions: {
-				minValue: 1,
+				loadOptionsMethod: 'loadWorkItemFieldsAll',
 			},
 			displayOptions: {
 				show: {
-					returnAll: [false],
+					object_type: ['WORKITEMFIELD'],
 				},
 			},
-			description: 'Max number of results to return',
 		},
-		timeoutOnlyOptions,
+		{
+			displayName: '父评论ID',
+			name: 'parent_id',
+			type: 'string',
+			required: true,
+			default: '',
+			description: '父评论 ID，可通过查询评论或创建评论接口获取。指同一实例下的一级评论 ID，不可使用二级评论 ID。',
+			displayOptions: {
+				show: {
+					object_type: ['CHILDCOMMENT'],
+				},
+			},
+		},
+		paginationOptions.returnAll,
+		paginationOptions.limit(),
+		{
+			displayName: 'Options',
+			name: 'options',
+			type: 'collection',
+			placeholder: 'Add option',
+			default: {},
+			options: [
+				{
+					displayName: '分页方向',
+					name: 'direction',
+					type: 'options',
+					default: 'DESC',
+					options: [
+						{ name: '降序 (DESC)', value: 'DESC' },
+						{ name: '升序 (ASC)', value: 'ASC' },
+					],
+					description: '分页查询方向',
+				},
+				{
+					displayName: '返回富文本 Markdown',
+					name: 'need_rich_text_mark_down',
+					type: 'boolean',
+					default: false,
+					// eslint-disable-next-line n8n-nodes-base/node-param-description-boolean-without-whether
+					description: '是否返回富文本 Markdown 格式内容',
+				},
+				timeoutOption,
+			],
+		},
 	],
 	async call(this: IExecuteFunctions, index: number): Promise<IDataObject | IDataObject[]> {
 		const project_key = this.getNodeParameter('project_key', index, '', {
 			extractValue: true,
 		}) as string;
-		const work_item_type_key = this.getNodeParameter('work_item_type_key', index) as string;
-		const work_item_id = this.getNodeParameter('work_item_id', index) as string;
+		const object_type = this.getNodeParameter('object_type', index, 'WORKITEM') as string;
+		const work_item_type_key = this.getNodeParameter('work_item_type_key', index, '') as string;
+		const work_item_id = this.getNodeParameter('work_item_id', index, '') as string;
+		const field_key = this.getNodeParameter('field_key', index, '') as string;
+		const parent_id = this.getNodeParameter('parent_id', index, '') as string;
 		const returnAll = this.getNodeParameter('returnAll', index, false) as boolean;
 		const limit = this.getNodeParameter('limit', index, 50) as number;
-		const options = this.getNodeParameter('options', index, {}) as ICommonOptionsValue;
+		const options = this.getNodeParameter('options', index, {}) as IDataObject;
 
-		// 统一的请求函数
-		const fetchPage = async (pageNum: number, pageSize: number) => {
-			const qs: IDataObject = {
-				page_num: pageNum,
-				page_size: pageSize,
+		const object: IDataObject = { type: object_type };
+
+		if (object_type === 'CHILDCOMMENT') {
+			if (!parent_id) {
+				throw new Error('查询子评论时必须填写 parent_id');
+			}
+			object.parent_id = parent_id;
+		} else {
+			if (!work_item_type_key || !work_item_id) {
+				throw new Error('查询工作项评论时必须填写 work_item_type_key 和 work_item_id');
+			}
+			object.work_item_type_key = work_item_type_key;
+			object.work_item_id = work_item_id;
+			if (object_type === 'WORKITEMFIELD') {
+				if (!field_key) {
+					throw new Error('查询工作项字段评论时必须填写 field_key');
+				}
+				object.field_key = field_key;
+			}
+		}
+
+		const direction = (options.direction as string) || 'DESC';
+
+		const fetchPage = async (cursor: string, pageSize: number) => {
+			const body: IDataObject = {
+				project_key,
+				object,
+				paginator: {
+					cursor,
+					direction,
+					page_size: pageSize,
+				},
 			};
+
+			if (options.need_rich_text_mark_down !== undefined) {
+				body.need_rich_text_mark_down = options.need_rich_text_mark_down;
+			}
 
 			const response = await RequestUtils.request.call(this, {
-				method: 'GET',
-				url: `/open_api/${project_key}/work_item/${work_item_type_key}/${work_item_id}/comments`,
-				qs: qs,
-				timeout: options.timeout,
-			}) as any;
+				method: 'POST',
+				url: '/open_api/comment/query',
+				body,
+				timeout: options.timeout as number | undefined,
+			}) as IDataObject;
 
-			return {
-				data: response?.data || [],
-				total: response?.pagination?.total || 0,
-			};
+			const comments = (response?.comments as IDataObject[]) || [];
+			const nextCursor = (response?.next_cursor || response?.NextCursor || response?.nextCursor || '') as string;
+
+			return { comments, nextCursor };
 		};
 
-		// 处理分页逻辑
+		const maxPageSize = 50;
+
 		if (returnAll) {
-			let allResults: any[] = [];
-			let pageNum = 1;
-			const pageSize = 200; // 最大支持200条
+			let allResults: IDataObject[] = [];
+			let cursor = '';
 
 			while (true) {
-				const { data, total } = await fetchPage(pageNum, pageSize);
-				allResults = allResults.concat(data);
+				const { comments, nextCursor } = await fetchPage(cursor, maxPageSize);
+				allResults = allResults.concat(comments);
 
-				// 检查是否还有更多数据
-				if (allResults.length >= total || data.length === 0 || pageNum >= 1000) {
-					if (pageNum >= 1000) {
-						this.logger.warn('已达到最大分页数限制(1000页)，停止获取');
-					}
+				if (!nextCursor || comments.length === 0 || comments.length < maxPageSize) {
 					break;
 				}
 
-				pageNum++;
+				cursor = nextCursor;
+
+				if (allResults.length >= 10000) {
+					this.logger.warn('已达到最大结果数限制(10000条)，停止获取');
+					break;
+				}
 			}
 
 			return allResults;
-		} else {
-			// 单次请求，返回限制数量的数据
-			const pageSize = Math.min(limit, 200);
-			const { data } = await fetchPage(1, pageSize);
-			return data.slice(0, limit);
 		}
-	}
+
+		let allResults: IDataObject[] = [];
+		let cursor = '';
+
+		while (allResults.length < limit) {
+			const remaining = limit - allResults.length;
+			const pageSize = Math.min(maxPageSize, remaining);
+			const { comments, nextCursor } = await fetchPage(cursor, pageSize);
+			allResults = allResults.concat(comments);
+
+			if (!nextCursor || comments.length === 0 || comments.length < pageSize) {
+				break;
+			}
+
+			cursor = nextCursor;
+		}
+
+		return allResults.slice(0, limit);
+	},
 };
 
 export default CommentQueryOperate;
