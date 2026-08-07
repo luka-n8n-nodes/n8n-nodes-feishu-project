@@ -48,15 +48,15 @@
     ]
   },
   "devDependencies": {
-    "@n8n/node-cli": "*",
-    "@types/node": "^20.19.37",
-    "eslint": "9.39.4",
-    "prettier": "3.8.1",
-    "typescript": "5.9.3"
+    "@n8n/node-cli": "^0.17.2",
+    "@types/node": "^20.19.43",
+    "eslint": "^9.39.5",
+    "prettier": "^3.9.6",
+    "typescript": "^5.9.3"
   },
   "dependencies": {
-    "form-data": "^4.0.1",
-    "glob": "^10.4.5"
+    "form-data": "^4.0.6",
+    "glob": "^13.0.6"
   },
   "peerDependencies": {
     "n8n-workflow": "*"
