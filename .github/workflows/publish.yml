@@ -1,226 +1,102 @@
-name: 🚀 自动发布到 NPM 和 GitHub Release
+# Publishes this n8n community node package to npm on every version tag push.
+#
+# Starting May 1 2026, n8n requires all community nodes to be published via
+# GitHub Actions with npm provenance statements. This workflow satisfies that
+# requirement. Provenance lets anyone cryptographically verify that a package
+# was built by this exact workflow, from this exact repository and commit.
+#
+# ─── PREREQUISITES ─────────────────────────────────────────────────────────────
+#
+# @n8n/node-cli ≥ 0.23.0 is required. Earlier versions do not support the
+# provenance flag passed by `npm run release` in CI, and the publish step will
+# fail. Check the version installed in this project with:
+#
+#   npm list @n8n/node-cli
+#
+# To upgrade:
+#
+#   npm install --save-dev @n8n/node-cli@latest
+#
+# ─── ONE-TIME SETUP ────────────────────────────────────────────────────────────
+#
+# Option A — OIDC Trusted Publishing (recommended, no long-lived secrets):
+#   1. Log in to npmjs.com and open your package's settings.
+#   2. Under "Publish access" → "Trusted Publishers", click "Add a publisher".
+#   3. Select GitHub Actions and fill in:
+#        Repository owner: luka-n8n-nodes
+#        Repository name:  n8n-nodes-feishu-project
+#        Workflow name:    publish.yml
+#        Environment:      (leave blank unless you use GitHub Environments)
+#   4. Leave the NPM_TOKEN secret unset in this repository. GitHub's OIDC
+#      token is used instead — no secret ever touches your repo settings.
+#
+# Option B — npm Automation Token (fallback):
+#   1. On npmjs.com: Access Tokens → Generate New Token → Granular Access Token.
+#      Scope it to this package with "Read and write" publish permission.
+#   2. In GitHub: Settings → Secrets and variables → Actions → New secret.
+#      Name it NPM_TOKEN and paste the token value.
+#
+# Both options work with --provenance. Provenance is signed by GitHub's OIDC
+# infrastructure regardless of how npm authentication is handled.
+#
+# ─── TAG CONVENTION ────────────────────────────────────────────────────────────
+#
+# This workflow triggers on tags matching "*.*.*" (e.g. 0.2.0).
+# If you prefer tags with a "v" prefix (e.g. v0.2.0), change the filter to:
+#   tags: ['v*.*.*']
+#
+# ─── RELEASE PROCESS ───────────────────────────────────────────────────────────
+#
+# Run the following command locally to start an interactive release:
+#
+#   npm run release
+#
+# This will lint, build, prompt for a version bump, update the changelog,
+# commit, tag, and push — which triggers this workflow to publish to npm.
+
+name: Publish
 
 on:
   push:
     tags:
-      - 'v*'
-  workflow_dispatch:
-    inputs:
-      version_type:
-        description: '版本类型'
-        required: true
-        default: 'patch'
-        type: choice
-        options:
-          - patch   # 修复版本 1.0.0 -> 1.0.1
-          - minor   # 次要版本 1.0.0 -> 1.1.0
-          - major   # 主要版本 1.0.0 -> 2.0.0
-      dry_run:
-        description: '仅测试，不实际发布'
-        required: false
-        default: false
-        type: boolean
-
-permissions:
-  contents: write
-  packages: write
-  id-token: write
+      # Matches 0.1.0, 1.2.3, 2.0.0-rc.1, etc.
+      # See "TAG CONVENTION" above if you prefer tags with a "v" prefix.
+      - '*.*.*'
 
 jobs:
   publish:
+    name: Publish to npm
     runs-on: ubuntu-latest
-    environment:
-      name: 正式环境
-      url: https://www.npmjs.com/package/@luka-cat-mimi/n8n-nodes-feishu-project
+
+    permissions:
+      # Required to mint an OIDC token for npm provenance attestation.
+      id-token: write
+      # Scoped down from the default (write) for least-privilege publishing.
+      contents: read
 
     steps:
-      # ===== 1. 环境准备 =====
-      - name: 📥 检出代码
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v4
 
-      - name: 🔧 设置 Node.js 环境
-        uses: actions/setup-node@v5
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: '24.x'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: 'lts/*'
           cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
 
-      - name: 📦 安装依赖
+      - name: Install dependencies
         run: npm ci
 
-      # ===== 2. 代码质量检查 =====
-      - name: 🔍 代码检查
-        run: npm run lint
-        continue-on-error: true
-
-      - name: 🏗️ 构建项目
-        run: npm run build
-
-      - name: ✅ 验证构建产物
+      - name: Release
+        # Publishes to npm with a provenance attestation (requires id-token: write above).
+        # Lint and build run automatically as part of the release process.
+        #
+        # Option A (OIDC): leave NPM_TOKEN unset — the token step is skipped and
+        # npm uses the OIDC exchange instead.
+        # Option B (token): set NPM_TOKEN in repo secrets — it is written to
+        # .npmrc here before publishing.
         run: |
-          echo "📂 检查 dist 目录内容:"
-          ls -la dist/
-          
-          echo ""
-          echo "✅ 验证关键文件:"
-          test -f dist/nodes/FeishuProject/FeishuProject.node.js && echo "✅ FeishuProject.node.js"
-          test -f dist/credentials/FeishuProjectApi.credentials.js && echo "✅ FeishuProjectApi.credentials.js"
-          test -f dist/package.json && echo "✅ dist/package.json"
-          
-          echo ""
-          echo "📊 包大小:"
-          du -sh dist/
-
-      # ===== 3. 版本管理 =====
-      - name: 🔐 配置 Git
-        run: |
-          git config --local user.email "luka.cat.mimi@gmail.com"
-          git config --local user.name "luka-cat"
-
-      - name: 📝 更新版本号（手动触发）
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run != 'true'
-        run: |
-          NEW_VERSION=$(npm version ${{ github.event.inputs.version_type }} --no-git-tag-version)
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
-          echo "📌 新版本: $NEW_VERSION"
-          
-          git add package.json package-lock.json
-          git commit -m "chore: release $NEW_VERSION"
-          git tag $NEW_VERSION -m "Release $NEW_VERSION"
-          git push origin HEAD:main --follow-tags
-
-      - name: 🏷️ 获取版本号（标签触发）
-        if: github.event_name == 'push'
-        run: |
-          echo "NEW_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-          echo "📌 发布版本: ${GITHUB_REF#refs/tags/}"
-
-      - name: 🏷️ 获取版本号（Dry Run）
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true'
-        run: |
-          CURRENT_VERSION=$(node -p "require('./package.json').version")
-          echo "NEW_VERSION=v$CURRENT_VERSION" >> $GITHUB_ENV
-          echo "🧪 Dry Run 模式 - 当前版本: v$CURRENT_VERSION"
-
-      # ===== 4. NPM 发布 (使用 OIDC Trusted Publishing) =====
-      - name: 🚀 发布到 NPM
-        if: github.event.inputs.dry_run != 'true'
-        run: npm publish --provenance --access public
-
-      - name: 🧪 模拟发布（Dry Run）
-        if: github.event.inputs.dry_run == 'true'
-        run: npm publish --dry-run --provenance --access public
-
-      # ===== 5. 生成变更日志 =====
-      - name: 📋 生成变更日志
-        id: changelog
-        run: |
-          echo "📝 生成变更日志..."
-          
-          LAST_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
-          
-          if [ -n "$LAST_TAG" ]; then
-            echo "📊 对比版本: $LAST_TAG -> ${{ env.NEW_VERSION }}"
-          
-            FEATURES=$(git log $LAST_TAG..HEAD --pretty=format:"%s" --no-merges | grep -E "^feat|^feature" | sed 's/^/- ✨ /' || echo "")
-            FIXES=$(git log $LAST_TAG..HEAD --pretty=format:"%s" --no-merges | grep -E "^fix|^bugfix" | sed 's/^/- 🐛 /' || echo "")
-            DOCS=$(git log $LAST_TAG..HEAD --pretty=format:"%s" --no-merges | grep "^docs" | sed 's/^/- 📚 /' || echo "")
-            CHORES=$(git log $LAST_TAG..HEAD --pretty=format:"%s" --no-merges | grep "^chore" | sed 's/^/- 🔧 /' || echo "")
-          
-            CHANGELOG="## 🎉 版本 ${{ env.NEW_VERSION }}
-
-          ### ✨ 新特性
-          ${FEATURES:-无}
-
-          ### 🐛 问题修复
-          ${FIXES:-无}
-
-          ### 📚 文档更新
-          ${DOCS:-无}
-
-          ### 🔧 其他变更
-          ${CHORES:-无}"
-          else
-            CHANGELOG="## 🎉 首次发布 ${{ env.NEW_VERSION }}
-
-          ### ✨ 功能特性
-          - 🎯 完整支持飞书项目管理 API 集成
-          - 📦 支持工作项、空间、用户、工作流等完整功能
-          - 🔧 支持附件管理、评论、视图等操作
-          - 🔐 自动管理 Access Token 和凭证刷新"
-          fi
-          
-          CHANGELOG="$CHANGELOG
-
-          ### 📦 安装方式
-          \`\`\`bash
-          npm install @luka-cat-mimi/n8n-nodes-feishu-project
-          \`\`\`
-
-          ### 🔗 相关链接
-          - 📖 [使用文档](https://github.com/luka-n8n-nodes/n8n-nodes-feishu-project#readme)
-          - 📦 [NPM 包](https://www.npmjs.com/package/@luka-cat-mimi/n8n-nodes-feishu-project)"
-          
-          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
-          echo "$CHANGELOG" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      # ===== 6. 创建 GitHub Release =====
-      - name: 🎊 创建 GitHub Release
-        if: github.event.inputs.dry_run != 'true'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ env.NEW_VERSION }}
-          name: Release ${{ env.NEW_VERSION }}
-          body: ${{ steps.changelog.outputs.CHANGELOG }}
-          draft: false
-          prerelease: false
-          generate_release_notes: true
-          make_latest: true
+          [ -n "$NPM_TOKEN" ] && npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"
+          npm run release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # ===== 7. 发布通知 =====
-      - name: 🎉 发布成功通知
-        if: github.event.inputs.dry_run != 'true'
-        run: |
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "🎉 发布成功！"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo ""
-          echo "📦 版本: ${{ env.NEW_VERSION }}"
-          echo "🔗 NPM: https://www.npmjs.com/package/@luka-cat-mimi/n8n-nodes-feishu-project"
-          echo ""
-          echo "📋 安装命令:"
-          echo "npm install @luka-cat-mimi/n8n-nodes-feishu-project"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-      - name: 🧪 Dry Run 完成通知
-        if: github.event.inputs.dry_run == 'true'
-        run: |
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "🧪 Dry Run 测试完成"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo ""
-          echo "✅ 所有检查通过，可以正式发布"
-          echo "📦 当前版本: ${{ env.NEW_VERSION }}"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-      - name: ❌ 发布失败通知
-        if: failure()
-        run: |
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "❌ 发布失败"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo ""
-          echo "请检查以下内容:"
-          echo "1. npm Trusted Publisher 是否配置正确（环境名：正式环境）"
-          echo "2. GitHub Token 权限是否足够（需要 id-token: write）"
-          echo "3. 代码是否通过 lint 检查"
-          echo "4. 构建是否成功"
-          echo ""
-          echo "查看详细日志: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

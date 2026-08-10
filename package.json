@@ -32,7 +32,10 @@
     "dev": "n8n-node dev",
     "format": "prettier nodes credentials --write",
     "lint": "n8n-node lint",
-    "lintfix": "n8n-node lint --fix"
+    "build:watch": "tsc --watch",
+    "lint:fix": "n8n-node lint --fix",
+    "release": "n8n-node release",
+    "prepublishOnly": "n8n-node prerelease"
   },
   "files": [
     "dist"
@@ -45,14 +48,16 @@
     "nodes": [
       "dist/nodes/FeishuProject/FeishuProject.node.js",
       "dist/nodes/FeishuProjectTrigger/FeishuProjectTrigger.node.js"
-    ]
+    ],
+    "strict": false
   },
   "devDependencies": {
-    "@n8n/node-cli": "^0.17.2",
+    "@n8n/node-cli": "*",
     "@types/node": "^20.19.43",
-    "eslint": "^9.39.5",
-    "prettier": "^3.9.6",
-    "typescript": "^5.9.3"
+    "eslint": "9.39.4",
+    "prettier": "3.8.3",
+    "release-it": "20.2.0",
+    "typescript": "5.9.3"
   },
   "dependencies": {
     "form-data": "^4.0.6",
