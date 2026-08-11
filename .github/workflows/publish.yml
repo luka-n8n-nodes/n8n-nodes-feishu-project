@@ -26,7 +26,7 @@
 #        Repository owner: luka-n8n-nodes
 #        Repository name:  n8n-nodes-feishu-project
 #        Workflow name:    publish.yml
-#        Environment:      (leave blank unless you use GitHub Environments)
+#        Environment:      正式环境
 #   4. Leave the NPM_TOKEN secret unset in this repository. GitHub's OIDC
 #      token is used instead — no secret ever touches your repo settings.
 #
@@ -67,6 +67,8 @@ jobs:
   publish:
     name: Publish to npm
     runs-on: ubuntu-latest
+    environment:
+      name: 正式环境
 
     permissions:
       # Required to mint an OIDC token for npm provenance attestation.
